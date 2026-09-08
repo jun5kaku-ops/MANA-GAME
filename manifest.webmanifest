@@ -1,0 +1,10 @@
+{
+  "name": "えほん ぼうけん",
+  "short_name": "えほん",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#DDF3FF",
+  "theme_color": "#DDF3FF",
+  "icons": [{ "src": "icon.png", "sizes": "512x512", "type": "image/png" }]
+}
