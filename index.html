@@ -88,11 +88,47 @@
   .seg button.on{background:var(--sun);color:var(--ink)}
   .lbl{font-size:19px;font-weight:900;margin-top:6px}
 
+  /* ドリル */
+  .drill{background:#fff;border-radius:22px;padding:10px 12px;box-shadow:0 4px 0 var(--shadow);margin-top:8px;text-align:center}
+  .drill .qq{font-size:19px;font-weight:900;line-height:1.4}
+  .drill .vis{font-size:44px;line-height:1.1;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;margin-top:4px}
+  .drill .vis.small{font-size:34px}
+  .drill .eq{font-size:30px;font-weight:900}
+  .drill .cbox{width:96px;height:96px;border-radius:24px;margin:6px auto 2px;box-shadow:0 5px 0 var(--shadow);border:5px solid #fff}
+  .drill .slots{display:flex;gap:8px;justify-content:center;margin-top:6px}
+  .drill .slot{width:52px;height:60px;border-radius:14px;background:#F3ECE3;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:var(--ink)}
+  .drill .slot.fill{background:var(--leaf);animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+  .stage.mini .main{font-size:54px}
+  .stage.mini{min-height:86px;margin:4px 0 2px}
+  .stage.mini .crew{font-size:30px}
+  .bubble.mini{font-size:19px;padding:12px 16px}
+
+  /* エンディング えんしゅつ */
+  .fin{position:fixed;inset:0;z-index:11;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;overflow:hidden}
+  .fin.on{display:flex}
+  .fin .fc{font-size:60px;line-height:1}
+  .fin .fcrew{font-size:50px;line-height:1}
+  .fin .fw{font-size:54px;font-weight:900;color:#fff;text-shadow:0 0 0 9px rgba(0,0,0,.45),0 8px 0 rgba(0,0,0,.25);animation:pop .6s cubic-bezier(.2,1.6,.4,1);text-align:center;padding:0 16px}
+  .fin .fs{font-size:24px;font-weight:900;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .fin .tap{position:absolute;bottom:34px;font-size:17px;font-weight:900;color:#fff;opacity:.85}
+  .fin.bg-night{background:radial-gradient(ellipse at bottom,#26265e 0%,#05051a 100%)}
+  .fin.bg-warm{background:linear-gradient(180deg,#FFD6A5 0%,#FF9E80 60%,#C96F4A 100%)}
+  .fin.bg-sky{background:linear-gradient(180deg,#7EC8F5 0%,#CFEFFF 55%,#F6FFE8 100%)}
+  .fin.bg-sunset{background:linear-gradient(180deg,#3B4A8C 0%,#FF8C69 55%,#FFD86B 100%)}
+  .fin.bg-aurora{background:linear-gradient(180deg,#07103a 0%,#123b5c 50%,#04061c 100%)}
+  .fin.bg-aurora:before{content:"";position:absolute;inset:-20% -30%;background:linear-gradient(115deg,rgba(120,255,190,0) 20%,rgba(120,255,190,.55) 38%,rgba(180,140,255,.5) 55%,rgba(120,255,190,0) 75%);filter:blur(14px);animation:aur 6s ease-in-out infinite}
+  .fin.bg-festival{background:linear-gradient(180deg,#2B1B4A 0%,#7A3B7E 60%,#E0655B 100%)}
+  .fin.bg-sea{background:linear-gradient(180deg,#63C7F0 0%,#2E86AB 60%,#123E5C 100%)}
+  .fp{position:absolute;pointer-events:none;line-height:1}
+  @keyframes aur{0%,100%{transform:translateX(-8%) skewY(-4deg)}50%{transform:translateX(8%) skewY(4deg)}}
+  @keyframes fpUp{0%{transform:translateY(20vh) scale(.7);opacity:0}15%{opacity:1}100%{transform:translateY(-95vh) scale(1.1);opacity:0}}
+  @keyframes fpDown{0%{transform:translateY(-20vh) rotate(0);opacity:0}15%{opacity:1}100%{transform:translateY(95vh) rotate(200deg);opacity:0}}
+  @keyframes fpAcross{0%{transform:translateX(-20vw);opacity:0}12%{opacity:1}100%{transform:translateX(115vw);opacity:0}}
   #ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:9}
   #ov.on{display:flex}
   #ov .word{font-size:64px;font-weight:900;color:#fff;text-shadow:0 0 0 8px var(--ink),0 8px 0 var(--shadow);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
   .conf{position:fixed;font-size:30px;pointer-events:none;animation:fall 1.2s ease-in forwards;z-index:8}
-  #fw{position:fixed;inset:0;z-index:7;display:none;background:radial-gradient(ellipse at bottom,#1a1a40 0%,#05051a 100%)}
+  #fw{position:fixed;inset:0;z-index:10;display:none;background:radial-gradient(ellipse at bottom,#1a1a40 0%,#05051a 100%)}
   #fw.on{display:block}
   #fwword{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10;flex-direction:column;gap:10px;pointer-events:none}
   #fwword.on{display:flex}
@@ -112,7 +148,7 @@
 <div id="app"></div>
 <div id="ov"><div class="word" id="ovw"></div></div>
 <canvas id="fw"></canvas>
-<div id="fwword"><div class="crew" id="fwcrew"></div><div class="t">ゴール！</div><p id="fwsub"></p></div>
+<div id="fin" class="fin"><div class="fcrew" id="fincrew"></div><div class="fc" id="fincenter"></div><div class="fw" id="finword"></div><div class="fs" id="finsub"></div><div class="tap">タップ すると つづくよ</div></div>
 
 <script>
 /* =========================================================
@@ -196,67 +232,73 @@ const STAGES=[
 {id:'umi',n:'うみ',e:'🏖️',ce:'🐚',x:14,y:86,
  arrive:'{by} うみに ついたよ！ ざぶーん、 なみの おとが きこえる。',
  chars:[{n:'かに',e:'🦀',l:'「ちょきちょき、 あそぼう！」'},{n:'かめ',e:'🐢',l:'「せなかに のっていいよ」'},{n:'いるか',e:'🐬',l:'「キュー！ およごう！」'},{n:'にんぎょひめ',e:'🧜‍♀️',l:'「うたを うたいましょう」'},{n:'たこ',e:'🐙',l:'「あしが はっぽん あるよ」'},{n:'ヒトデ',e:'⭐',l:'「ぴかぴか ひかるよ」'},{n:'ラッコ',e:'🦦',l:'「かいを わるのが とくいだよ」'}],
- acts:[{n:'いっしょに およぐ',e:'🏊',tag:'asobi',t:'ざぶざぶ およいだよ。 {char}さんも いっしょ！'},{n:'すなで あそぶ',e:'🏰',tag:'asobi',t:'すなで おしろを つくったよ。 {char}さんが てつだってくれた。'},{n:'かいがらを あつめる',e:'🐚',tag:'takara',t:'きれいな かいがらを あつめたよ。 {char}さんに ひとつ あげた。'},{n:'ふねに のる',e:'⛵',tag:'asobi',t:'ふねに のって ぷかぷか。 {char}さんが うたを うたった。'},{n:'さかなを さがす',e:'🐠',tag:'takara',t:'みずの なかを のぞいたよ。 にじいろの さかなが いた！'}],
- events:[{t:'あ！ おおきな なみが きたよ。 どうする？',c:[{n:'にげる',e:'🏃',tag:'asobi',t:'きゃー！ すこし ぬれちゃった。 でも たのしい！'},{n:'とびこむ',e:'🌊',tag:'asobi',t:'ざっぱーん！ {char}さんと おおわらい。'}]},
+ acts:[{n:'いっしょに およぐ',e:'🏊',tag:'asobi',t:'ざぶざぶ およいだよ。 {crew}も いっしょ！'},{n:'すなで あそぶ',e:'🏰',tag:'asobi',t:'すなで おしろを つくったよ。 {char}さんが てつだってくれた。'},{n:'かいがらを あつめる',e:'🐚',tag:'takara',t:'きれいな かいがらを あつめたよ。 {crew}に ひとつ あげた。'},{n:'ふねに のる',e:'⛵',tag:'asobi',t:'ふねに のって ぷかぷか。 {char}さんが うたを うたった。'},{n:'さかなを さがす',e:'🐠',tag:'takara',t:'みずの なかを のぞいたよ。 にじいろの さかなが いた！'}],
+ events:[{t:'あ！ おおきな なみが きたよ。 どうする？',c:[{n:'にげる',e:'🏃',tag:'asobi',t:'きゃー！ すこし ぬれちゃった。 でも たのしい！'},{n:'とびこむ',e:'🌊',tag:'asobi',t:'ざっぱーん！ {crew}と おおわらい。'}]},
    {t:'うみの なかで たからばこを みつけた！ どうする？',c:[{n:'あけて みる',e:'💎',tag:'takara',t:'ぱかっ。 きらきらの しんじゅが はいってた！'},{n:'みんなに みせる',e:'🎁',tag:'takara',t:'みんなで たからばこを のぞいたよ。 「わあ！」'}]},
    {t:'いかだが ながれてきた。 どうする？',c:[{n:'いかだに のる',e:'🛶',tag:'asobi',t:'いかだに のって ぷかぷか。 きもちいい！'},{n:'みんなで おす',e:'💪',tag:'asobi',t:'みんなで いかだを おしたよ。 よいしょ よいしょ！'}]},
    {t:'すいかを みつけた！ どうする？',c:[{n:'すいかわりを する',e:'🍉',tag:'asobi',t:'めかくしして えいっ！ ぱかーん、 われた！'},{n:'みんなで たべる',e:'😋',tag:'gohan',t:'あまくて つめたい すいか。 みんなで たべたよ。'}]},
    {t:'とおくで くじらが しおを ふいた！ どうする？',c:[{n:'みに いく',e:'🐋',tag:'asobi',t:'くじらさんが おおきな せなかに のせてくれた！'},{n:'てを ふる',e:'👋',tag:'uta',t:'くじらさんが 「ぶおー」 と うたで こたえてくれた。'}]}],
+ finales:['yuuhi','shabon','gochisou'],
  goal:'ゆうひが きれいだね。 うみの ぼうけん、'},
 
 {id:'yama',n:'やま',e:'🏔️',ce:'🌰',x:44,y:88,
  arrive:'{by} やまに ついたよ！ とりが ちゅんちゅん ないてる。',
  chars:[{n:'もりの くまさん',e:'🐻',l:'「はちみつ、 たべる？」'},{n:'りす',e:'🐿️',l:'「どんぐり ひろおう！」'},{n:'うさぎ',e:'🐰',l:'「ぴょんぴょん きょうそうだ」'},{n:'ふくろう',e:'🦉',l:'「ホーホー、 やまの ことなら まかせて」'},{n:'やぎ',e:'🐐',l:'「めえ〜 のぼるのは とくいだよ」'},{n:'カモシカ',e:'🦌',l:'「はやく はしれるよ」'}],
- acts:[{n:'やまを のぼる',e:'🥾',tag:'asobi',t:'よいしょ よいしょ。 てっぺんまで のぼったよ。 とおくまで みえる！'},{n:'おべんとうを たべる',e:'🍙',tag:'gohan',t:'おにぎりを たべたよ。 {char}さんに はんぶん わけてあげた。'},{n:'かくれんぼを する',e:'🙈',tag:'asobi',t:'{char}さんと かくれんぼ。 きの うしろで みつけた！'},{n:'うたを うたう',e:'🎵',tag:'uta',t:'やまびこに むかって うたったよ。 {char}さんも いっしょに。'},{n:'いしを つむ',e:'🪨',tag:'asobi',t:'いしを たかく つんだよ。 くずれないように そーっと。'}],
- events:[{t:'ぽつぽつ… あめが ふってきた！ どうする？',c:[{n:'かさを さす',e:'☂️',tag:'asobi',t:'かさを さして あるいたよ。 あめの おとが きもちいい。'},{n:'きの したで まつ',e:'🌳',tag:'nemuri',t:'おおきな きの したで あまやどり。 {char}さんと おはなしした。'}]},
+ acts:[{n:'やまを のぼる',e:'🥾',tag:'asobi',t:'よいしょ よいしょ。 てっぺんまで のぼったよ。 とおくまで みえる！'},{n:'おべんとうを たべる',e:'🍙',tag:'gohan',t:'おにぎりを たべたよ。 {crew}に はんぶん わけてあげた。'},{n:'かくれんぼを する',e:'🙈',tag:'asobi',t:'{crew}と かくれんぼ。 きの うしろで みつけた！'},{n:'うたを うたう',e:'🎵',tag:'uta',t:'やまびこに むかって うたったよ。 {crew}も いっしょに。'},{n:'いしを つむ',e:'🪨',tag:'asobi',t:'いしを たかく つんだよ。 くずれないように そーっと。'}],
+ events:[{t:'ぽつぽつ… あめが ふってきた！ どうする？',c:[{n:'かさを さす',e:'☂️',tag:'asobi',t:'かさを さして あるいたよ。 あめの おとが きもちいい。'},{n:'きの したで まつ',e:'🌳',tag:'nemuri',t:'おおきな きの したで あまやどり。 {crew}と おはなしした。'}]},
    {t:'はちみつの きを みつけた！ どうする？',c:[{n:'なめて みる',e:'🍯',tag:'gohan',t:'あまーい！ みんなで ぺろぺろ たべたよ。'},{n:'びんに いれる',e:'🫙',tag:'takara',t:'びんに はちみつを いれて もちかえったよ。'}]},
-   {t:'つりばしが ある。 ゆらゆら してるよ。 どうする？',c:[{n:'はしを わたる',e:'🌉',tag:'asobi',t:'{char}さんと てを つないで わたったよ。 どきどき！'},{n:'まわりみちを する',e:'🚶',tag:'asobi',t:'まわりみちを したら きれいな みずうみが あった！'}]},
+   {t:'つりばしが ある。 ゆらゆら してるよ。 どうする？',c:[{n:'はしを わたる',e:'🌉',tag:'asobi',t:'{crew}と てを つないで わたったよ。 どきどき！'},{n:'まわりみちを する',e:'🚶',tag:'asobi',t:'まわりみちを したら きれいな みずうみが あった！'}]},
    {t:'ゆきが すこし のこってる！ どうする？',c:[{n:'ゆきだるまを つくる',e:'⛄',tag:'asobi',t:'ちいさな ゆきだるまが できたよ。 かわいい！'},{n:'さわって みる',e:'🧤',tag:'asobi',t:'つめたい！ てが きゅっと なったよ。'}]},
    {t:'きの うろから おとが する。 どうする？',c:[{n:'のぞいて みる',e:'🦉',tag:'takara',t:'ふくろうの あかちゃんが ねてた。 そーっと しよう。'},{n:'みみを すます',e:'👂',tag:'uta',t:'ホーホー。 やまじゅうに こえが ひびいたよ。'}]}],
+ finales:['choujou','yuuhi','gochisou'],
  goal:'にじが でたよ！ やまの ぼうけん、'},
 
 {id:'mori',n:'もり',e:'🌳',ce:'🍄',x:74,y:80,
  arrive:'{by} もりに ついたよ！ はっぱの あいだから ひかりが きらきら。',
  chars:[{n:'きつね',e:'🦊',l:'「コン！ もりの あんないは まかせて」'},{n:'しか',e:'🦌',l:'「はっぱが おいしいよ」'},{n:'ちょうちょ',e:'🦋',l:'「ひらひら、 ついてきて」'},{n:'かえる',e:'🐸',l:'「ケロケロ、 うたおう！」'},{n:'もりの ようせい',e:'🧚',l:'「きらきら まほうを かけてあげる」'},{n:'はりねずみ',e:'🦔',l:'「とげとげだけど やさしいよ」'},{n:'あおむし',e:'🐛',l:'「もぐもぐ、 はっぱが すき」'}],
- acts:[{n:'きのみを ひろう',e:'🌰',tag:'gohan',t:'きのみを いっぱい ひろったよ。 {char}さんと たべた。'},{n:'たきを みに いく',e:'💦',tag:'asobi',t:'おおきな たきを みつけた！ みずしぶきが つめたい。'},{n:'おはなを つむ',e:'🌼',tag:'takara',t:'おはなで かんむりを つくって {char}さんに かぶせたよ。'},{n:'ぶらんこに のる',e:'🪢',tag:'asobi',t:'つるの ぶらんこで びゅーん！ {char}さんが おしてくれた。'},{n:'ひみつきちを つくる',e:'🛖',tag:'asobi',t:'えだと はっぱで ひみつきち！ {char}さんと なかに はいったよ。'}],
+ acts:[{n:'きのみを ひろう',e:'🌰',tag:'gohan',t:'きのみを いっぱい ひろったよ。 {crew}と たべた。'},{n:'たきを みに いく',e:'💦',tag:'asobi',t:'おおきな たきを みつけた！ みずしぶきが つめたい。'},{n:'おはなを つむ',e:'🌼',tag:'takara',t:'おはなで かんむりを つくって {crew}に かぶせたよ。'},{n:'ぶらんこに のる',e:'🪢',tag:'asobi',t:'つるの ぶらんこで びゅーん！ {char}さんが おしてくれた。'},{n:'ひみつきちを つくる',e:'🛖',tag:'asobi',t:'えだと はっぱで ひみつきち！ {crew}と なかに はいったよ。'}],
  events:[{t:'みちが ふたつに わかれてる。 どっちへ いく？',c:[{n:'あかるい みちを いく',e:'☀️',tag:'asobi',t:'おひさまの みち。 ちょうちょが いっぱい とんでる！'},{n:'くらい みちを いく',e:'🌙',tag:'nemuri',t:'ひんやりした みち。 ほたるが ぴかぴか ひかってる！'}]},
    {t:'きのこが いっぱい はえてる！ どうする？',c:[{n:'かぞえて みる',e:'🍄',tag:'asobi',t:'いち、 に、 さん… いっぱい あって かぞえきれない！'},{n:'スープに する',e:'🍲',tag:'gohan',t:'{char}さんが きのこスープを つくってくれた。 あったかい！'}]},
    {t:'たいこの おとが きこえる。 どうする？',c:[{n:'みに いく',e:'🥁',tag:'matsuri',t:'もりの おまつりだ！ みんなが おどってる！'},{n:'ここで きく',e:'👂',tag:'uta',t:'きの したで たいこの おとを きいたよ。 どんどこ どんどこ。'}]},
    {t:'ちいさな とりの すが おちてる。 どうする？',c:[{n:'きに もどす',e:'🪺',tag:'takara',t:'そっと きに もどしたよ。 とりさんが おれいに うたってくれた。'},{n:'みんなを よぶ',e:'📣',tag:'asobi',t:'みんなで とりさんの おうちを なおしたよ。'}]},
    {t:'きりが でてきた。 まっしろ！ どうする？',c:[{n:'てを つなぐ',e:'🤝',tag:'asobi',t:'てを つないで あるいたよ。 これなら はぐれない！'},{n:'こえを かける',e:'📣',tag:'uta',t:'「おーい！」 みんなの こえで あんしんしたよ。'}]}],
+ finales:['hoshizora','parade','gochisou'],
  goal:'もりの みんなが みおくってくれた。 もりの ぼうけん、'},
 
 {id:'machi',n:'まち',e:'🏙️',ce:'🎈',x:86,y:60,
  arrive:'{by} まちに ついたよ！ おみせが いっぱい ならんでる。',
  chars:[{n:'パンやさん',e:'🧑‍🍳',l:'「やきたてだよ！」'},{n:'おまわりさん',e:'👮',l:'「まちの あんないを するよ」'},{n:'ねこ',e:'🐈',l:'「にゃーん」'},{n:'はと',e:'🕊️',l:'「くるっくー」'},{n:'おはなやさん',e:'💐',l:'「おはな、 どうぞ」'},{n:'とけいやさん',e:'🕰️',l:'「かちかち、 じかんは たいせつ」'}],
- acts:[{n:'こうえんで あそぶ',e:'🛝',tag:'asobi',t:'こうえんで すべりだい。 {char}さんも いっしょに しゅーっ！'},{n:'おかいものを する',e:'🛒',tag:'takara',t:'おみせで おかいもの。 {char}さんに おみやげを えらんだよ。'},{n:'どうぶつえんに いく',e:'🦁',tag:'asobi',t:'どうぶつえんで ライオンを みた。 がおー！'},{n:'パンを たべる',e:'🥐',tag:'gohan',t:'やきたての パンを たべたよ。 {char}さんと はんぶんこ。'},{n:'としょかんに いく',e:'📚',tag:'nemuri',t:'えほんを よんだよ。 {char}さんが よんでくれた。'}],
+ acts:[{n:'こうえんで あそぶ',e:'🛝',tag:'asobi',t:'こうえんで すべりだい。 {crew}も いっしょに しゅーっ！'},{n:'おかいものを する',e:'🛒',tag:'takara',t:'おみせで おかいもの。 {crew}に おみやげを えらんだよ。'},{n:'どうぶつえんに いく',e:'🦁',tag:'asobi',t:'どうぶつえんで ライオンを みた。 がおー！'},{n:'パンを たべる',e:'🥐',tag:'gohan',t:'やきたての パンを たべたよ。 {crew}と はんぶんこ。'},{n:'としょかんに いく',e:'📚',tag:'nemuri',t:'えほんを よんだよ。 {char}さんが よんでくれた。'}],
  events:[{t:'しんごうが あかだよ。 どうする？',c:[{n:'あおまで まつ',e:'🚦',tag:'asobi',t:'ちゃんと まてたね！ あおに なったよ。 わたろう。'},{n:'てを あげる',e:'🙋',tag:'asobi',t:'てを あげて あおで わたったよ。 {char}さんが えらいねって！'}]},
-   {t:'ふうせんが とんでいく！ どうする？',c:[{n:'おいかける',e:'🎈',tag:'asobi',t:'{char}さんと ふうせんを おいかけた！ つかまえた！'},{n:'ばいばいする',e:'👋',tag:'nemuri',t:'そらに とんでいく ふうせんに ばいばい。'}]},
+   {t:'ふうせんが とんでいく！ どうする？',c:[{n:'おいかける',e:'🎈',tag:'asobi',t:'{crew}と ふうせんを おいかけた！ つかまえた！'},{n:'ばいばいする',e:'👋',tag:'nemuri',t:'そらに とんでいく ふうせんに ばいばい。'}]},
    {t:'おまつりの おとが きこえる。 どうする？',c:[{n:'おまつりに いく',e:'🏮',tag:'matsuri',t:'まちの おまつりだ！ たいこと ちょうちんが いっぱい！'},{n:'かきごおりを たべる',e:'🍧',tag:'gohan',t:'やたいで かきごおりを たべたよ。 つめたい！'}]},
    {t:'まいごの こねこが ないてる。 どうする？',c:[{n:'こえを かける',e:'🐱',tag:'asobi',t:'こねこの おかあさんが すぐに みつかった。 よかった！'},{n:'みんなを よぶ',e:'📣',tag:'asobi',t:'みんなで さがして おうちに かえしてあげたよ。'}]},
    {t:'おおきな とけいが なりだした！ どうする？',c:[{n:'かぞえる',e:'🕐',tag:'asobi',t:'ぼーん、 ぼーん。 ぜんぶで さんかい なったよ。'},{n:'みあげる',e:'🕰️',tag:'nemuri',t:'とけいの はりが ゆっくり うごいてる。 きれい。'}]}],
+ finales:['hanabi','parade','gochisou'],
  goal:'まちの あかりが きらきら。 まちの ぼうけん、'},
 
 {id:'uchu',n:'うちゅう',e:'🚀',ce:'⭐',x:60,y:54,
  trans:[{n:'ロケット',e:'🚀',kind:'space',t:'さん、 に、 いち、 はっしゃ！ ロケットで びゅーん！'},{n:'ユーフォー',e:'🛸',kind:'space',t:'ふわふわ ユーフォーに のったよ。 ぐるぐる まわる！'}],
  arrive:'{by} うちゅうに ついたよ！ ほしが いっぱい。',
  chars:[{n:'うちゅうじん',e:'👽',l:'「ぴぽぱ！ ようこそ」'},{n:'つきの うさぎ',e:'🐰',l:'「おもち、 つくよ」'},{n:'ロボット',e:'🤖',l:'「ピピピ、 なかよく しよう」'},{n:'うちゅうひこうし',e:'👩‍🚀',l:'「ふわふわ うくよ」'},{n:'ほしの こ',e:'⭐',l:'「きらきら ひかるよ」'},{n:'どせいの こ',e:'🪐',l:'「わっかが じまんなんだ」'}],
- acts:[{n:'つきで ジャンプする',e:'🌙',tag:'asobi',t:'つきで ジャンプしたら すごく たかく とんだ！ {char}さんも ぴょーん。'},{n:'ほしを みる',e:'🔭',tag:'nemuri',t:'ぼうえんきょうで ほしを みたよ。 {char}さんが ほしの なまえを おしえてくれた。'},{n:'おもちを たべる',e:'🍡',tag:'gohan',t:'つきの おもちを たべたよ。 {char}さんと はんぶんこ。'},{n:'ふわふわ うく',e:'🧑‍🚀',tag:'asobi',t:'ふわふわ ういて {char}さんと くるくる まわったよ。'},{n:'ほしを つなぐ',e:'✨',tag:'takara',t:'ほしと ほしを つないだら どうぶつの かたちに なった！'}],
- events:[{t:'ながれぼしが とんできた！ どうする？',c:[{n:'おねがいを する',e:'🙏',tag:'nemuri',t:'おねがいごとを したよ。 かなうと いいね。'},{n:'おいかける',e:'🏃',tag:'asobi',t:'{char}さんと ながれぼしを おいかけた。 きらきら！'}]},
+ acts:[{n:'つきで ジャンプする',e:'🌙',tag:'asobi',t:'つきで ジャンプしたら すごく たかく とんだ！ {crew}も ぴょーん。'},{n:'ほしを みる',e:'🔭',tag:'nemuri',t:'ぼうえんきょうで ほしを みたよ。 {char}さんが ほしの なまえを おしえてくれた。'},{n:'おもちを たべる',e:'🍡',tag:'gohan',t:'つきの おもちを たべたよ。 {crew}と はんぶんこ。'},{n:'ふわふわ うく',e:'🧑‍🚀',tag:'asobi',t:'ふわふわ ういて {crew}と くるくる まわったよ。'},{n:'ほしを つなぐ',e:'✨',tag:'takara',t:'ほしと ほしを つないだら どうぶつの かたちに なった！'}],
+ events:[{t:'ながれぼしが とんできた！ どうする？',c:[{n:'おねがいを する',e:'🙏',tag:'nemuri',t:'おねがいごとを したよ。 かなうと いいね。'},{n:'おいかける',e:'🏃',tag:'asobi',t:'{crew}と ながれぼしを おいかけた。 きらきら！'}]},
    {t:'うちゅうの レストランが ある！ どうする？',c:[{n:'なかに はいる',e:'🍽️',tag:'gohan',t:'ふわふわ ういてる ハンバーグを たべたよ。 おいしい！'},{n:'まどから みる',e:'🪟',tag:'asobi',t:'まどから ちきゅうが みえた！ あおくて きれい！'}]},
    {t:'ほしの おんがくが きこえる。 どうする？',c:[{n:'うたう',e:'🎤',tag:'uta',t:'ほしの うたを みんなで うたったよ。 きらきらぼし！'},{n:'おどる',e:'💃',tag:'matsuri',t:'ふわふわ ういて おどったよ。 うちゅうダンス！'}]},
    {t:'ちいさな ほしが まいごに なってる。 どうする？',c:[{n:'てを つなぐ',e:'🤝',tag:'asobi',t:'おうちの そらまで おくってあげたよ。 「ありがとう！」'},{n:'ひからせる',e:'🔦',tag:'takara',t:'みんなで ひかったら おかあさんぼしが みつけてくれた。'}]}],
+ finales:['hoshizora','hanabi','gochisou'],
  goal:'ちきゅうが みえてきた。 うちゅうの ぼうけん、'},
 
 {id:'okashi',n:'おかしの くに',e:'🍭',ce:'🍬',x:30,y:56,
  trans:[{n:'ふうせん',e:'🎈',kind:'sky',t:'ふわふわ ふうせんで そらを とぶよ。 くもが あまい におい！'},{n:'キャンディカー',e:'🍬',kind:'candy',t:'キャンディカーで しゅっぱつ！ タイヤは ドーナツだよ。'}],
  arrive:'{by} おかしの くにに ついたよ！ みちが チョコレート！',
  chars:[{n:'クッキーの こ',e:'🍪',l:'「さくさく、 こんにちは」'},{n:'ケーキひめ',e:'🍰',l:'「ようこそ、 あまい くにへ」'},{n:'ドーナツの こ',e:'🍩',l:'「ころころ あそぼう」'},{n:'プリンおうじ',e:'🍮',l:'「ぷるぷる、 よろしく」'},{n:'あめの まじょ',e:'🧙',l:'「あまい まほうを かけてあげる」'},{n:'マシュマロの こ',e:'🤍',l:'「ふわふわ、 だっこして」'}],
- acts:[{n:'みちを たべる',e:'😋',tag:'gohan',t:'チョコの みちを ぱくっ。 あまくて おいしい！'},{n:'すべりだいを する',e:'🛝',tag:'asobi',t:'アイスの すべりだいを しゅーっ！ {char}さんも おおよろこび。'},{n:'ケーキを つくる',e:'🧁',tag:'gohan',t:'{char}さんと カップケーキを つくったよ。 クリームを たっぷり！'},{n:'プールで あそぶ',e:'🏊',tag:'asobi',t:'ジュースの プールで ぱしゃぱしゃ！ {char}さんも とびこんだ。'},{n:'あめを ならべる',e:'🍬',tag:'takara',t:'いろとりどりの あめを ならべたよ。 にじみたい！'}],
- events:[{t:'あめの あめが ふってきた！ どうする？',c:[{n:'くちを あける',e:'😮',tag:'gohan',t:'あーん。 くちに あめが はいったよ。 いちごあじ！'},{n:'バケツで あつめる',e:'🪣',tag:'takara',t:'バケツに あめを いっぱい あつめたよ。 {char}さんと わけっこ。'}]},
+ acts:[{n:'みちを たべる',e:'😋',tag:'gohan',t:'チョコの みちを ぱくっ。 あまくて おいしい！'},{n:'すべりだいを する',e:'🛝',tag:'asobi',t:'アイスの すべりだいを しゅーっ！ {crew}も おおよろこび。'},{n:'ケーキを つくる',e:'🧁',tag:'gohan',t:'{crew}と カップケーキを つくったよ。 クリームを たっぷり！'},{n:'プールで あそぶ',e:'🏊',tag:'asobi',t:'ジュースの プールで ぱしゃぱしゃ！ {crew}も とびこんだ。'},{n:'あめを ならべる',e:'🍬',tag:'takara',t:'いろとりどりの あめを ならべたよ。 にじみたい！'}],
+ events:[{t:'あめの あめが ふってきた！ どうする？',c:[{n:'くちを あける',e:'😮',tag:'gohan',t:'あーん。 くちに あめが はいったよ。 いちごあじ！'},{n:'バケツで あつめる',e:'🪣',tag:'takara',t:'バケツに あめを いっぱい あつめたよ。 {crew}と わけっこ。'}]},
    {t:'クッキーの おしろが ある！ どうする？',c:[{n:'なかに はいる',e:'🏰',tag:'asobi',t:'おしろの なかは クリームだらけ！ ふわふわ！'},{n:'かべを かじる',e:'😋',tag:'gohan',t:'かべを ちょっと かじったよ。 さくさく おいしい！'}]},
    {t:'おかしの パレードが きた！ どうする？',c:[{n:'いっしょに あるく',e:'🎺',tag:'matsuri',t:'パレードに はいって みんなで あるいたよ。 ぱんぱか ぱーん！'},{n:'てを ふる',e:'👋',tag:'uta',t:'てを ふったら パレードの みんなが うたって くれた！'}]},
    {t:'わたあめの くもが ういてる。 どうする？',c:[{n:'のって みる',e:'☁️',tag:'asobi',t:'ふわふわの わたあめぐも。 とっても やわらかい！'},{n:'ちぎって たべる',e:'🍥',tag:'gohan',t:'ちぎって ぱくっ。 くちの なかで しゅわっと きえた！'}]}],
+ finales:['gochisou','parade','shabon'],
  goal:'おほしさまが でてきたよ。 おかしの くにの ぼうけん、'},
 
 {id:'kyoryu',n:'きょうりゅうの しま',e:'🦕',ce:'🥚',x:22,y:28,
@@ -268,17 +310,19 @@ const STAGES=[
    {t:'やまから けむりが でてる。 どうする？',c:[{n:'とおくから みる',e:'🌋',tag:'asobi',t:'あんぜんな ところから みたよ。 ぼわーんと けむりが でた！'},{n:'みんなを よぶ',e:'📣',tag:'asobi',t:'みんなに おしえて いっしょに ひなんしたよ。 えらい！'}]},
    {t:'ジャングルに みちが ない！ どうする？',c:[{n:'はっぱを どける',e:'🌿',tag:'asobi',t:'みんなで はっぱを どけたら みちが できたよ。'},{n:'{char}に のる',e:'🦕',tag:'asobi',t:'{char}さんが ジャングルを すいすい あるいてくれた。'}]},
    {t:'みずうみで きょうりゅうが みずあびしてる。 どうする？',c:[{n:'いっしょに はいる',e:'💦',tag:'asobi',t:'ばしゃばしゃ！ みんなで みずかけっこ！'},{n:'きしで みる',e:'🪨',tag:'nemuri',t:'きしに すわって のんびり ながめたよ。 きもちいい。'}]}],
+ finales:['choujou','yuuhi','gochisou'],
  goal:'きょうりゅうたちが ずしーんと みおくってくれた。 きょうりゅうの しまの ぼうけん、'},
 
 {id:'yuki',n:'ゆきの くに',e:'⛄',ce:'❄️',x:56,y:22,
  trans:[{n:'そり',e:'🛷',kind:'snow',t:'しゅーっ！ そりで ゆきの うえを すべっていくよ。'},{n:'でんしゃ',e:'🚃',kind:'rail',t:'がたんごとん。 まっしろな けしきの なかを すすむよ。'}],
  arrive:'{by} ゆきの くにに ついたよ！ あたり いちめん まっしろ。',
  chars:[{n:'しろくま',e:'🐻‍❄️',l:'「さむくない？ もふもふ どうぞ」'},{n:'ペンギン',e:'🐧',l:'「よちよち、 ついてきて」'},{n:'ゆきだるま',e:'⛄',l:'「とけないように きを つけてね」'},{n:'ゆきうさぎ',e:'🐇',l:'「ゆきの なかは あったかいよ」'},{n:'トナカイ',e:'🦌',l:'「そりを ひくのが とくいだよ」'},{n:'アザラシ',e:'🦭',l:'「こおりの うえで ごろごろ」'}],
- acts:[{n:'ゆきだるまを つくる',e:'⛄',tag:'asobi',t:'おおきな ゆきだるまが できたよ。 {char}さんが はなを つけてくれた。'},{n:'そりで すべる',e:'🛷',tag:'asobi',t:'しゅーっ！ さかを すべりおりたよ。 もういっかい！'},{n:'ゆきがっせんを する',e:'❄️',tag:'asobi',t:'えいっ！ ぽふっ。 {char}さんと おおわらい。'},{n:'あったかい スープ',e:'🍲',tag:'gohan',t:'あつあつの スープを のんだよ。 からだが ぽかぽか。'},{n:'こおりを みる',e:'🧊',tag:'takara',t:'すきとおった こおり。 なかに はっぱが とじこめられてた！'}],
+ acts:[{n:'ゆきだるまを つくる',e:'⛄',tag:'asobi',t:'おおきな ゆきだるまが できたよ。 {char}さんが はなを つけてくれた。'},{n:'そりで すべる',e:'🛷',tag:'asobi',t:'しゅーっ！ さかを すべりおりたよ。 もういっかい！'},{n:'ゆきがっせんを する',e:'❄️',tag:'asobi',t:'えいっ！ ぽふっ。 {crew}と おおわらい。'},{n:'あったかい スープ',e:'🍲',tag:'gohan',t:'あつあつの スープを のんだよ。 からだが ぽかぽか。'},{n:'こおりを みる',e:'🧊',tag:'takara',t:'すきとおった こおり。 なかに はっぱが とじこめられてた！'}],
  events:[{t:'そらに オーロラが でたよ！ どうする？',c:[{n:'ねころんで みる',e:'🌌',tag:'nemuri',t:'ゆきの うえに ねころんで ながめたよ。 みどりや むらさきが ゆらゆら。'},{n:'てを のばす',e:'✋',tag:'asobi',t:'てを のばしたら オーロラに とどきそう！ きらきら。'}]},
    {t:'つららが ならんでる。 どうする？',c:[{n:'えんそうする',e:'🎵',tag:'uta',t:'ちん、 こん、 かん。 つららが きれいな おとを だしたよ。'},{n:'かぞえる',e:'🔢',tag:'asobi',t:'いち、 に、 さん… おおきいのから ならんでるね。'}]},
    {t:'ゆきの したから こえが する。 どうする？',c:[{n:'そっと ほる',e:'🧤',tag:'takara',t:'ゆきうさぎの あかちゃんだった！ そっと おうちへ かえしたよ。'},{n:'みみを すます',e:'👂',tag:'nemuri',t:'しーん。 ゆきの おとだけが きこえる。 しずかだね。'}]},
    {t:'あたたかい おうちの あかりが みえる。 どうする？',c:[{n:'たずねる',e:'🏠',tag:'gohan',t:'{char}さんの おうちだった！ あったかい ココアを もらったよ。'},{n:'もうすこし あそぶ',e:'❄️',tag:'asobi',t:'まだまだ あそぶ！ ゆきの うえで ごろごろ したよ。'}]}],
+ finales:['aurora','hoshizora','gochisou'],
  goal:'ゆきが きらきら ひかってる。 ゆきの くにの ぼうけん、'}
 ];
 
@@ -297,22 +341,25 @@ const COMMON_EVENTS=[
 /* とちゅうで あらわれる おきゃくさん（どうぶつ・ふしぎな こ だけ） */
 const GUESTS=[{n:'こいぬ',e:'🐕',l:'「わんわん！」'},{n:'ちょうちょ',e:'🦋',l:'「ひらひら〜」'},{n:'こねこ',e:'🐈',l:'「にゃーん」'},{n:'あひる',e:'🦆',l:'「がーがー、 まぜて！」'},{n:'てんとうむし',e:'🐞',l:'「ちいさいけど げんきだよ」'},{n:'ようせい',e:'🧚',l:'「きらきら〜」'},{n:'こぐま',e:'🐻',l:'「いっしょに あそびたい」'}];
 
-/* エンディング */
-const ENDINGS={
-  asobi:{e:'🎈🎉',t:'{with} なかよく いっぱい あそびました。'},
-  gohan:{e:'🍽️😋',t:'{with} ごはんを いっぱい たべました。 おなか ぱんぱん！'},
-  uta:{e:'🎶🎤',t:'{with} おおきな こえで うたを うたいました。'},
-  nemuri:{e:'😴🌙',t:'{with} ごろんと おひるね。 いい ゆめを みました。'},
-  takara:{e:'💎🎁',t:'{with} みつけた たからものを わけっこしました。'},
-  matsuri:{e:'🏮🥁',t:'{with} おまつりで よるまで おどりました。'}
+/* エンディング（ばしょごとに かわる えんしゅつ） */
+const FINALES={
+  hanabi:{c:'🎆',bg:'bg-night',word:'ゴール！',dir:'Up',em:['🎆','✨','🎉'],t:'{with} さいごに はなびを みました。',say:'はなびだよ！'},
+  gochisou:{c:'🍽️',bg:'bg-warm',word:'いただきます！',dir:'Up',em:['🍙','🍰','🍜','🍓'],t:'{with} ごはんを いっぱい たべました。 おなか ぱんぱん！',say:'ごちそうだよ！ いただきます！'},
+  choujou:{c:'🚩',bg:'bg-sky',word:'てっぺんだ！',dir:'Across',em:['☁️','☀️','✨'],t:'{with} てっぺんまで のぼって ばんざい！',say:'てっぺんに ついたよ！ ばんざーい！'},
+  yuuhi:{c:'🌅',bg:'bg-sunset',word:'また あしたね',dir:'Across',em:['🐦','✨'],t:'{with} きれいな ゆうひを ながめました。',say:'ゆうひが きれいだね。'},
+  aurora:{c:'🌌',bg:'bg-aurora',word:'きれい！',dir:'Down',em:['❄️','✨'],t:'{with} そらの オーロラを ながめました。',say:'オーロラだよ！ ゆらゆら きれい！'},
+  parade:{c:'🎺',bg:'bg-festival',word:'パレード！',dir:'Across',em:['🏮','🥁','🎊'],t:'{with} パレードで よるまで おどりました。',say:'パレードだよ！ ぱんぱか ぱーん！'},
+  hoshizora:{c:'🌟',bg:'bg-night',word:'ほしが いっぱい！',dir:'Down',em:['⭐','✨','🌙'],t:'{with} ねころんで ほしぞらを ながめました。',say:'ほしが いっぱい！ きらきら。'},
+  shabon:{c:'🫧',bg:'bg-sea',word:'ぷかぷか〜',dir:'Up',em:['🫧','🐟','🐚'],t:'{with} ぷかぷか うかんで あそびました。',say:'ぷかぷか うかんで きもちいいね。'}
 };
+const TAG_FINALE={gohan:['gochisou'],matsuri:['parade','hanabi'],uta:['parade','hoshizora'],nemuri:['hoshizora','aurora','yuuhi'],takara:['hanabi','shabon'],asobi:['hanabi','choujou','shabon','parade']};
 
 /* アイス と かいほう */
 const ICES=[
-  {id:'vanilla',n:'バニラ',e:'🍦',p:3},{id:'ichigo',n:'いちご',e:'🍓',p:3},{id:'choco',n:'チョコ',e:'🍫',p:4},{id:'melon',n:'メロン',e:'🍈',p:4},
-  {id:'soda',n:'ソーダ',e:'🧊',p:4},{id:'budo',n:'ぶどう',e:'🍇',p:5},{id:'mikan',n:'みかん',e:'🍊',p:5},{id:'banana',n:'バナナ',e:'🍌',p:5},
-  {id:'matcha',n:'まっちゃ',e:'🍵',p:6},{id:'milk',n:'ミルク',e:'🥛',p:6},{id:'momo',n:'もも',e:'🍑',p:6},{id:'kinako',n:'きなこ',e:'🌾',p:7},
-  {id:'sakura',n:'さくら',e:'🌸',p:7},{id:'ramune',n:'ラムネ',e:'🫧',p:8},{id:'coffee',n:'コーヒー',e:'☕',p:8},{id:'rainbow',n:'レインボー',e:'🌈',p:10}
+  {id:'vanilla',n:'バニラ',e:'🍦',p:5},{id:'ichigo',n:'いちご',e:'🍓',p:5},{id:'choco',n:'チョコ',e:'🍫',p:6},{id:'melon',n:'メロン',e:'🍈',p:6},
+  {id:'soda',n:'ソーダ',e:'🧊',p:7},{id:'budo',n:'ぶどう',e:'🍇',p:7},{id:'mikan',n:'みかん',e:'🍊',p:8},{id:'banana',n:'バナナ',e:'🍌',p:8},
+  {id:'matcha',n:'まっちゃ',e:'🍵',p:9},{id:'milk',n:'ミルク',e:'🥛',p:9},{id:'momo',n:'もも',e:'🍑',p:10},{id:'kinako',n:'きなこ',e:'🌾',p:10},
+  {id:'sakura',n:'さくら',e:'🌸',p:12},{id:'ramune',n:'ラムネ',e:'🫧',p:12},{id:'coffee',n:'コーヒー',e:'☕',p:14},{id:'rainbow',n:'レインボー',e:'🌈',p:16}
 ];
 const UNLOCKS=[{need:0,stage:'umi'},{need:0,stage:'yama'},{need:2,stage:'mori'},{need:4,stage:'machi'},{need:6,stage:'uchu'},{need:8,stage:'okashi'},{need:10,stage:'kyoryu'},{need:12,stage:'yuki'}];
 
@@ -322,6 +369,52 @@ const ALL_CHARS=(()=>{ const m=new Map();
   GUESTS.forEach(c=>m.set(c.n,c));
   Object.values(JAMS).forEach(j=>[...j.slow,...j.fast].forEach(c=>m.set(c.n,c)));
   return [...m.values()]; })();
+
+/* =========================================================
+   3.5 ミニゲーム（ドリル）の データ
+   ========================================================= */
+const COLOR_LIST=[
+  {n:'あか',c:'#E4572E'},{n:'あお',c:'#3B82F6'},{n:'きいろ',c:'#FFD22E'},{n:'みどり',c:'#3FA95B'},
+  {n:'ピンク',c:'#FF8FAB'},{n:'むらさき',c:'#9B59B6'},{n:'オレンジ',c:'#FF9F1C'},{n:'ちゃいろ',c:'#8D6E63'}
+];
+/* おはなしの ぶんに でてきた もの を みつけて、ドリルに つなげる
+   flags: m=かぞえられる（かず・たしざん）  c=いろが かわる（いろあて） */
+const OBJS=[
+  ['ふうせん','🎈','circle','mca'],['かいがら','🐚','circle','ma'],['たからばこ','🧰','square','ca'],['しんじゅ','🤍','circle','m'],
+  ['はちみつ','🍯','square',''],['きのこ','🍄','circle','m'],['おはな','🌼','circle','mc'],['はっぱ','🌿','circle','m'],
+  ['どんぐり','🌰','circle','m'],['きのみ','🌰','circle','m'],['ゆきだるま','⛄','circle','m'],['たまご','🥚','circle','ma'],
+  ['ほし','⭐','circle','m'],['つき','🌙','circle',''],['にじ','🌈','square',''],['かさ','☂️','circle','mca'],
+  ['いかだ','🛶','square','a'],['すいか','🍉','circle','m'],['おにぎり','🍙','circle','m'],['パン','🍞','square','ma'],
+  ['スープ','🍲','circle',''],['アイス','🍦','circle','m'],['あめ','🍬','circle','m'],['ケーキ','🍰','square','ma'],
+  ['クッキー','🍪','circle','ma'],['ドーナツ','🍩','circle','ma'],['カップケーキ','🧁','circle','m'],['わたあめ','☁️','circle','m'],
+  ['おもち','🍡','circle','m'],['ココア','☕','circle',''],['かきごおり','🍧','circle','m'],['ジュース','🧃','square','mca'],
+  ['ふね','⛵','square','ca'],['でんしゃ','🚃','square','ca'],['ひつじ','🐑','circle','m'],['ねこ','🐈','circle','mc'],
+  ['とり','🐦','circle','mc'],['ちょうちょ','🦋','circle','mc'],['ほたる','✨','circle','m'],['たいこ','🥁','circle','ma'],
+  ['ちょうちん','🏮','circle','mca'],['こおり','🧊','square',''],['つらら','🧊','square','m'],['ゆき','❄️','circle',''],
+  ['いし','🪨','circle','mca'],['はな','🌸','circle','mc'],['ボール','⚽','circle','mca'],['かんむり','👑','circle','ca'],
+  ['ばんそうこう','🩹','square','ca'],['きっぷ','🎫','square','mca'],['おだんご','🍡','circle','m'],['やきいも','🍠','circle','m'],
+  ['ハンバーグ','🍖','square','m'],['はた','🚩','square','ca'],['くるま','🚗','square','mca'],['オーロラ','🌌','square','']
+].sort((a,b)=>b[0].length-a[0].length);
+/* ことばの きりめを みて、べつの ことばの いちぶ（よいしょ の「いし」など）を ひろわないように する */
+const PRE=['',' ','　','「','。','、','！','？'];
+const POST=['','が','を','に','は','で','と','も','の',' ','　','。','、','！','？'];
+function findObj(text){
+  const t=text.replace(/<[^>]*>/g,'');
+  const names=(A&&A.party?A.party:[]).map(p=>p.n);
+  for(const o of OBJS){
+    if(names.some(n=>n.includes(o[0]))) continue;
+    let i=-1;
+    while((i=t.indexOf(o[0],i+1))>=0){
+      const pre=i===0?'':t[i-1], post=t[i+o[0].length]||'';
+      if(PRE.includes(pre)&&POST.includes(post)) return {w:o[0],e:o[1],shape:o[2],fl:o[3]||''};
+    }
+  }
+  return null;
+}
+const FOODS=[['いちご','🍓'],['りんご','🍎'],['バナナ','🍌'],['みかん','🍊'],['ぶどう','🍇'],['すいか','🍉'],['もも','🍑'],
+  ['おにぎり','🍙'],['パン','🍞'],['ケーキ','🍰'],['クッキー','🍪'],['ドーナツ','🍩'],['アイス','🍦'],['プリン','🍮'],
+  ['ラーメン','🍜'],['カレー','🍛'],['たまご','🥚'],['とうもろこし','🌽'],['おだんご','🍡'],['ピザ','🍕'],['はちみつ','🍯'],['にんじん','🥕']];
+const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
 
 /* =========================================================
    4. ユーティリティ・ほぞん
@@ -412,7 +505,11 @@ function showMap(){
 let A=null, Q=[];
 const run=()=>{ const f=Q.shift(); if(f) f(); };
 const withStr=()=>{ const p=A.party; if(p.length===1) return hon(p[0].n)+'と ふたりで'; return p.map(c=>hon(c.n)).join('と ')+'と みんなで'; };
+const whoStr=()=>A.party.map(c=>hon(c.n)).join('と ');
+const crewStr=()=>A.party.length>1?'みんな':(A.party[0]?hon(A.party[0].n):'');
 const fill=t=>t.replace(/\{dest\}/g,A.dest?A.dest.n:'')
+  .replace(/\{who\}/g,A.party.length?whoStr():'')
+  .replace(/\{crew\}/g,A.party.length?crewStr():'')
   .replace(/\{by\}/g,A.trans?(A.trans.by||A.trans.n+'で'):'')
   .replace(/\{char\}さん/g,A.party[0]?hon(A.party[0].n):'')
   .replace(/\{char\}/g,A.party[0]?A.party[0].n:'')
@@ -422,7 +519,8 @@ const join=c=>{ if(!A.party.find(p=>p.n===c.n)) A.party.push(c); meetChar(c); };
 
 function startAdventure(stage){
   A={dest:stage,trans:null,party:[],tags:[],stars:0,acts:0};
-  Q=[sTrans,sTransTell,sTravel,()=>quiz('count'),sArrive,sMeet,sAct,sMore,sEventsSetup,sEnding];
+  drillBag=[];
+  Q=[sTrans,sTransTell,sTravel,sMeet,sAct,sMore,sEventsSetup,sEnding];
   run();
 }
 function sTrans(){ const pool=A.dest.trans||TRANSPORTS; const o=pick(pool,2); choice(A.dest.e,fill('{dest}まで なにで いく？'),o.map(t=>({n:t.n,e:t.e,v:t})),t=>{A.trans=t;}); }
@@ -449,14 +547,13 @@ function sTravel(){
   choice(A.trans.e,fill(ev.t),ev.c.map(c=>({n:fill(c.n),e:c.e,v:c})),c=>{ Q.unshift(()=>tell(c.e,fill(c.t))); });
 }
 
-function sArrive(){ tell(A.dest.e,fill(A.dest.arrive)); }
 function sMeet(){
   const o=pick(A.dest.chars,2);
-  choice(A.dest.e,'だれかが いるよ。 だれに あいたい？',o.map(c=>({n:c.n,e:c.e,v:c})),c=>{ A.party.unshift(c); meetChar(c); Q.unshift(()=>tell(c.e,hon(c.n)+' '+c.l)); });
+  choice(A.dest.e,fill(A.dest.arrive)+' <br>だれに あいたい？',o.map(c=>({n:c.n,e:c.e,v:c})),c=>{ A.party.unshift(c); meetChar(c); Q.unshift(()=>tell(c.e,hon(c.n)+' '+c.l)); });
 }
 function sAct(){
   const o=pick(A.dest.acts,2);
-  choice(A.party[0].e,fill('{char}さんと なにを する？'),o.map(a=>({n:fill(a.n),e:a.e,v:a})),a=>{ addTag(a.tag); A.acts++; Q.unshift(()=>tell(a.e,fill(a.t))); });
+  choice(A.party.map(p=>p.e).join(''),fill('{who}と なにを する？'),o.map(a=>({n:fill(a.n),e:a.e,v:a})),a=>{ addTag(a.tag); A.acts++; Q.unshift(()=>tell(a.e,fill(a.t),a.tag==='gohan'?'food':null)); });
 }
 function sMore(){
   if(A.party.length>=3) return run();
@@ -474,20 +571,20 @@ function sMore(){
 function sEventsSetup(){
   const ate=A.tags.includes('gohan');
   const commons=COMMON_EVENTS.filter(ev=>!(ate&&ev.c.every(c=>c.tag==='gohan')));
-  const evs=shuffle([...pick(A.dest.events,2),...pick(commons,1)]);
-  const quizzes=shuffle(['hira','kata']).concat(['alpha']);
-  const seq=[];
-  evs.forEach((ev,i)=>{ seq.push(()=>sEvent(ev)); seq.push(()=>quiz(quizzes[i])); });
-  Q.unshift(...seq); run();
+  const evs=shuffle(Math.random()<0.5?[...pick(A.dest.events,2)]:[...pick(A.dest.events,1),...pick(commons,1)]);
+  Q.unshift(...evs.map(ev=>()=>sEvent(ev))); run();
 }
-function sEvent(ev){ choice('❗',fill(ev.t),ev.c.map(c=>({n:fill(c.n),e:c.e,v:c})),c=>{ addTag(c.tag); Q.unshift(()=>tell(c.e,fill(c.t))); }); }
+function sEvent(ev){ choice('❗',fill(ev.t),ev.c.map(c=>({n:fill(c.n),e:c.e,v:c})),c=>{ addTag(c.tag); Q.unshift(()=>tell(c.e,fill(c.t),c.tag==='gohan'?'food':null)); }); }
 function sEnding(){
   const cnt={}; A.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1);
   const max=Math.max(...Object.values(cnt));
-  const tops=Object.keys(cnt).filter(t=>cnt[t]===max);
-  const key=tops[rnd(tops.length)]||'asobi';
-  const en=ENDINGS[key]; A.endEmoji=en.e;
-  Q.unshift(()=>tell(en.e,fill(en.t)+' '+fill(A.dest.goal)+'おしまい！'),goal);
+  const tops=shuffle(Object.keys(cnt).filter(t=>cnt[t]===max));
+  const cand=A.dest.finales;
+  let key=null;
+  for(const t of tops){ const pref=(TAG_FINALE[t]||[]).find(f=>cand.includes(f)); if(pref){ key=pref; break; } }
+  if(!key) key=cand[rnd(cand.length)];
+  A.fin=FINALES[key];
+  Q.unshift(()=>tellPlain(A.fin.c,fill(A.fin.t)+' '+fill(A.dest.goal)+'おしまい！','ゴール！','🎉',goal));
   run();
 }
 
@@ -514,50 +611,148 @@ function choice(emoji,text,opts,onPick){
   speak(clean(text),900,opts.map(o=>o.n).join('？ ')+'？');
   app.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ const o=opts[b.dataset.i]; speak(o.n); onPick(o.v); setTimeout(run,450); });
 }
-function tell(emoji,text){
+/* --- おはなし＋ミニゲーム（「つぎへ」だけの がめんは なし） --- */
+let drillBag=[];
+const DRILL_TYPES=['color','add','count','word','order','alpha'];
+function nextDrillType(){ if(!drillBag.length) drillBag=shuffle(DRILL_TYPES); return drillBag.shift(); }
+
+function tell(emoji,text,force){
+  let type=force||nextDrillType();
+  if(!force){
+    const ob=findObj(text);
+    /* おはなしに ものが でてきたら、それに つなげられる ドリルに よせる */
+    if(ob){
+      const ok=['word','alpha'];
+      if(ob.fl.includes('c')) ok.push('color');
+      if(ob.fl.includes('m')) ok.push('count','add');
+      if(/^[ぁ-ん]{2,3}$/.test(ob.w)) ok.push('order');
+      if(!ok.includes(type)) type=ok[rnd(ok.length)];
+    }
+  }
+  drillScene(emoji,text,type);
+}
+
+/* おはなしの しめくくり（ゴールボタン） */
+function tellPlain(emoji,text,btnLabel,btnEmoji,onClick){
   app.innerHTML=header()+scene(emoji,{cls:'big'})+`
     <div class="bubble"><div class="txt">${text}</div><button class="say">🔊</button></div>
-    <div class="choices"><button class="btn c1" id="nx">つぎへ <small>▶</small></button></div>`;
-  bindCommon(clean(text)); speak(clean(text)); $('#nx').onclick=()=>{ stopSpeak(); run(); };
+    <div class="choices"><button class="btn c2" id="nx"><b>${btnEmoji}</b>${btnLabel}</button></div>`;
+  bindCommon(clean(text)); speak(clean(text));
+  $('#nx').onclick=()=>{ stopSpeak(); onClick(); };
 }
-function quiz(type){
-  let qz;
-  if(type==='count'){
-    const n=1+rnd(10), ce=A.dest.ce, others=pick(Array.from({length:10},(_,i)=>i+1),2,n-1), lead='とちゅうで これを みつけた！';
-    qz={main:Array.from({length:n},()=>`<span>${ce}</span>`).join(''),cls:'count',q:lead+'<br>いくつ かな？',read:clean(lead)+' いくつ かな？',
-        ans:String(n),ansRead:NUM_YOMI[n],hint:NUM_YOMI[n],readOpts:true,opts:shuffle([n,...others]).map(v=>({l:String(v),v:String(v),big:true}))};
-  }else if(type==='alpha'){
-    const i=rnd(26),L=ALPHA[i],others=pick(ALPHA,2,i),lead='もじの かんばんが あるよ。';
-    qz={main:`<span style="font-size:66px">「${ALPHA_YOMI[L]}」</span>`,cls:'',q:lead+`<br>「${ALPHA_YOMI[L]}」は どれ？`,read:clean(lead)+' '+ALPHA_YOMI[L]+' は どれ？',
-        ans:L,ansRead:ALPHA_YOMI[L],hint:ALPHA_YOMI[L],opts:shuffle([L,...others]).map(v=>({l:v,v:v,big:true}))};
-  }else{
-    const pool=type==='hira'?HIRA:KATA,i=rnd(pool.length),[w,e]=pool[i],others=pick(pool,2,i),lead=fill('{char}さんが えを みせてくれたよ。');
-    qz={main:e,cls:'',q:lead+'<br>これは なに？',read:clean(lead)+' これは なに？',ans:w,ansRead:w,hint:w,
-        opts:shuffle([[w,e],...others]).map(o=>({l:o[0],v:o[0],big:o[0].length<=2}))};
+
+function makeDrill(type,ob){
+  const N=ob?ob.w:null;
+  if(type==='color'){
+    const i=rnd(COLOR_LIST.length), c=COLOR_LIST[i], others=pick(COLOR_LIST,2,i);
+    const rad=ob&&ob.shape==='square'?'18px':'50%';
+    return {q:N?`この ${N}の いろは なに？`:'この いろは なに？',read:(N?'この '+N+'の いろは なに？':'この いろは なに？'),
+      vis:`<div class="cbox" style="background:${c.c};border-radius:${rad}"></div>`,
+      ans:c.n,hint:c.n,readOpts:true,
+      opts:shuffle([c,...others]).map(o=>({l:o.n,v:o.n}))};
   }
-  app.innerHTML=header()+scene(qz.main,{cls:qz.cls,crew:false})+`
-    <div class="bubble"><div class="txt">${qz.q}</div><button class="say">🔊</button></div>
-    <div class="choices three">${qz.opts.map((o,i)=>`<button class="btn ${COLORS[i%5]} ${o.big?'big':''}" data-v="${o.v}">${o.l}</button>`).join('')}</div>`;
-  bindCommon(qz.read);
-  if(qz.readOpts) speak(qz.read,900,qz.opts.map(o=>o.l).join('？ ')+'？'); else speak(qz.read);
-  let locked=false;
+  if(type==='add'){
+    const a=1+rnd(4), b=1+rnd(Math.min(4,6-a)), sum=a+b, em=ob?ob.e:ADD_EMOJI[rnd(ADD_EMOJI.length)];
+    const pool=[1,2,3,4,5,6,7,8].filter(v=>v!==sum);
+    return {q:N?`${N}が ${a}こと ${b}こ。 あわせて いくつ？`:`${a} ＋ ${b} ＝ ？`,
+      read:(N?N+'が '+NUM_YOMI[a]+'こと '+NUM_YOMI[b]+'こ。 あわせて いくつ？':a+' たす '+b+' は？'),
+      vis:`<div class="vis small">${em.repeat(a)}<span class="eq">＋</span>${em.repeat(b)}<span class="eq">＝ ？</span></div>`,
+      ans:String(sum),hint:NUM_YOMI[sum],readOpts:true,
+      opts:shuffle([sum,...pick(pool,2)]).map(v=>({l:String(v),v:String(v),big:true}))};
+  }
+  if(type==='count'){
+    const n=1+rnd(10), ce=ob?ob.e:A.dest.ce, others=pick(Array.from({length:10},(_,i)=>i+1),2,n-1);
+    return {q:N?`${N}は いくつ あるかな？`:'いくつ あるかな？',read:(N?N+'は いくつ あるかな？':'いくつ あるかな？'),
+      vis:`<div class="vis small">${ce.repeat(n)}</div>`,
+      ans:String(n),hint:NUM_YOMI[n],readOpts:true,
+      opts:shuffle([n,...others]).map(v=>({l:String(v),v:String(v),big:true}))};
+  }
+  if(type==='word'){
+    let w,e,others;
+    if(ob){ w=ob.w; e=ob.e; others=pick([...HIRA,...KATA].filter(x=>x[0]!==w),2); }
+    else { const pool=Math.random()<0.5?HIRA:KATA, i=rnd(pool.length); [w,e]=pool[i]; others=pick(pool,2,i); }
+    return {q:'この えは なに？',read:'この えは なに？',
+      vis:`<div class="vis">${e}</div>`,ans:w,hint:w,
+      opts:shuffle([[w,e],...others]).map(o=>({l:o[0],v:o[0]}))};
+  }
+  if(type==='alpha'){
+    const i=rnd(26), L=ALPHA[i], others=pick(ALPHA,2,i);
+    const lead=N?`${N}に もじが かいてある！ `:'';
+    return {q:lead+`「${ALPHA_YOMI[L]}」は どれ？`,read:(N?N+'に もじが かいてあるよ。 ':'')+ALPHA_YOMI[L]+' は どれ？',
+      vis:`<div class="vis">「${ALPHA_YOMI[L]}」</div>`,ans:L,hint:ALPHA_YOMI[L],
+      opts:shuffle([L,...others]).map(v=>({l:v,v:v,big:true}))};
+  }
+  if(type==='food'){
+    const who=A.party[rnd(A.party.length)];
+    const i=rnd(FOODS.length),[fn,fe]=FOODS[i],others=pick(FOODS,2,i);
+    return {q:`${hon(who.n)}は 「${fn}」が たべたいって！`,read:hon(who.n)+'は '+fn+'が たべたいって。 '+fn+'は どれ？',
+      vis:`<div class="vis">${who.e}<span class="eq">→</span>❓</div>`,
+      ans:fn,hint:fn,
+      opts:shuffle([[fn,fe],...others]).map(o=>({l:o[1],v:o[0],big:true}))};
+  }
+  /* order: ひらがなを じゅんばんに えらんで ことばを つくる */
+  const pool=HIRA.filter(x=>x[0].length>=2&&x[0].length<=3);
+  let w,e;
+  if(ob && /^[ぁ-ん]{2,3}$/.test(ob.w)){ w=ob.w; e=ob.e; } else { [w,e]=pool[rnd(pool.length)]; }
+  const kana='あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわん'.split('');
+  const extra=shuffle(kana.filter(k=>!w.includes(k))).slice(0,w.length>=3?1:2);
+  return {order:true,word:w,q:'じゅんばんに えらんでね',read:'この えは '+w+'。 もじを じゅんばんに えらんでね。',
+    vis:`<div class="vis">${e}</div>`,hint:w,
+    opts:shuffle([...w.split(''),...extra]).map(k=>({l:k,v:k,big:true}))};
+}
+
+function drillScene(emoji,text,type){
+  let ob=type==='food'?null:findObj(text);
+  if(ob){ const f=ob.fl;
+    const fit = type==='word' || type==='order'
+      || (type==='color'&&f.includes('c'))
+      || ((type==='count'||type==='add')&&f.includes('m'))
+      || (type==='alpha'&&f.includes('a'));
+    if(!fit) ob=null; }
+  const d=makeDrill(type,ob);
+  const three=d.opts.length>2;
+  const slots=d.order?`<div class="slots">${d.word.split('').map(()=>'<div class="slot"></div>').join('')}</div>`:'';
+  app.innerHTML=header()+scene(emoji,{cls:'mini'})+`
+    <div class="bubble mini"><div class="txt">${text}</div><button class="say">🔊</button></div>
+    <div class="drill"><div class="qq">${d.q}</div>${d.vis||''}${slots}</div>
+    <div class="choices ${three?'three':'two'}">${d.opts.map((o,i)=>`<button class="btn ${COLORS[i%5]} ${o.big?'big':''} ${three&&!o.big?'sm':''}" data-v="${o.v}" data-i="${i}">${o.l}</button>`).join('')}</div>`;
+  bindCommon(clean(text)+' '+d.read);
+  if(d.readOpts) speak(clean(text),700,d.read,900,d.opts.map(o=>o.l).join('？ ')+'？');
+  else speak(clean(text),700,d.read);
+
+  let locked=false, pos=0;
+  const done=()=>{ locked=true; A.stars++; $('.pts').innerHTML='⭐ <span>'+A.stars+'</span>';
+    showWord('せいかい！'); burst(14); setTimeout(run,1500); };
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{
     if(locked) return;
-    if(b.dataset.v===qz.ans){ locked=true; b.classList.add('right'); A.stars++; $('.pts').innerHTML='⭐ <span>'+A.stars+'</span>';
-      showWord('せいかい！'); burst(14); speak('せいかい！ '+qz.ansRead+'！'); setTimeout(run,1500); }
-    else{ b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); speak('もういちど。',600,'ヒント、 '+qz.hint+'！'); }
+    if(d.order){
+      if(b.dataset.v===d.word[pos]){
+        const sl=app.querySelectorAll('.slot')[pos];
+        sl.textContent=b.dataset.v; sl.classList.add('fill');
+        b.disabled=true; b.style.opacity=.35; pos++;
+        if(pos===d.word.length){ speak('せいかい！ '+d.word+'！'); done(); }
+        else speak(b.dataset.v);
+      }else{ b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); speak('つぎは、',400,d.word[pos]+'！'); }
+      return;
+    }
+    if(b.dataset.v===d.ans){ b.classList.add('right'); speak('せいかい！ '+d.hint+'！'); done(); }
+    else{ b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); speak('もういちど。',600,'ヒント、 '+d.hint+'！'); }
   });
 }
 function goal(){
   const bonus=2,got=A.stars+bonus;
   save.points+=got; persist();
   const names=A.party.map(p=>hon(p.n)).join('・');
-  const text=fill('{with} ゴール！');
-  app.innerHTML=header()+`<div class="stage big"><div class="main">${A.party.map(p=>p.e).join('')}</div><div class="crew" style="font-size:17px;font-weight:900">${names}</div></div>
-    <div class="bubble"><div class="txt">${text}<br>⭐ ${got} ポイント もらったよ！</div><button class="say">🔊</button></div>
-    <div class="choices two"><button class="btn c2" id="toShop"><b>🍦</b>アイスやさん</button><button class="btn c3" id="again"><b>🗺️</b>もういちど</button></div>`;
-  bindCommon(clean(text)); $('#toShop').onclick=showShop; $('#again').onclick=showMap;
-  fireworks(got,A.party.map(p=>p.e).join(''),()=>speak(clean(text),700,'ほしが '+got+'ポイント もらえたよ！'));
+  const crew=A.party.map(p=>p.e).join('');
+  const fin=A.fin, text=fill('{with} ゴール！');
+  const show=()=>{
+    app.innerHTML=header()+`<div class="stage big"><div class="main">${fin.c}${crew}</div><div class="crew" style="font-size:17px;font-weight:900">${names}</div></div>
+      <div class="bubble"><div class="txt">${text}<br>⭐ ${got} ポイント もらったよ！</div><button class="say">🔊</button></div>
+      <div class="choices two"><button class="btn c2" id="toShop"><b>🍦</b>アイスやさん</button><button class="btn c3" id="again"><b>🗺️</b>もういちど</button></div>`;
+    bindCommon(clean(text)); $('#toShop').onclick=showShop; $('#again').onclick=showMap;
+    speak(clean(text),700,'ほしが '+got+'ポイント もらえたよ！');
+  };
+  playFinale(fin,got,crew,show);
 }
 
 /* =========================================================
@@ -629,23 +824,48 @@ function burst(n){ const em=['🎉','⭐','🌟','✨','🎈','💖'];
   for(let i=0;i<n;i++){ const s=document.createElement('div'); s.className='conf'; s.textContent=em[rnd(em.length)];
     s.style.left=rnd(100)+'vw'; s.style.top=(-10+rnd(30))+'vh'; s.style.animationDelay=(rnd(400)/1000)+'s';
     document.body.appendChild(s); setTimeout(()=>s.remove(),1800); } }
-function fireworks(pts,crew,onDone){
-  const cv=$('#fw'),ctx=cv.getContext('2d'),W=cv.width=innerWidth,H=cv.height=innerHeight;
-  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  cv.classList.add('on'); const word=$('#fwword'); $('#fwsub').textContent='⭐ '+pts+' ポイント'; $('#fwcrew').textContent=crew||'';
-  let parts=[],t0=performance.now(),shots=0; const colors=['#ff6f91','#ffd86b','#a6e3a1','#9bd4ff','#cdb4f5','#fff'];
-  function shoot(){ const x=W*(0.2+Math.random()*0.6),y=H*(0.15+Math.random()*0.4),c=colors[rnd(colors.length)];
-    for(let i=0;i<70;i++){ const a=Math.random()*Math.PI*2,s=2+Math.random()*5; parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c}); } }
-  function frame(now){ const el=now-t0; if(shots<8&&el>shots*450){shoot();shots++;}
-    ctx.fillStyle='rgba(5,5,26,.25)'; ctx.fillRect(0,0,W,H);
-    parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.vx*=0.98;p.life-=0.012;ctx.globalAlpha=Math.max(p.life,0);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill();});
-    ctx.globalAlpha=1; parts=parts.filter(p=>p.life>0); if(el>800) word.classList.add('on');
-    if(el<4200&&!reduce) requestAnimationFrame(frame); else end(); }
-  function end(){ cv.classList.remove('on'); word.classList.remove('on'); ctx.clearRect(0,0,W,H); burst(20); onDone&&onDone(); }
-  speak('ゴール！ はなびだよ！');
-  if(reduce){ word.classList.add('on'); setTimeout(end,1500); } else requestAnimationFrame(frame);
+function particles(emojis,dir,n){
+  const out=[];
+  for(let i=0;i<n;i++){
+    const el=document.createElement('span'); el.className='fp';
+    el.textContent=emojis[rnd(emojis.length)];
+    el.style.fontSize=(22+rnd(24))+'px';
+    if(dir==='Across'){ el.style.top=(8+rnd(78))+'vh'; el.style.left='0'; }
+    else { el.style.left=(4+rnd(92))+'vw'; el.style.top=(dir==='Up'?'80vh':'0'); }
+    el.style.animation=`fp${dir} ${(3.2+Math.random()*2.4).toFixed(1)}s linear ${(Math.random()*2.6).toFixed(1)}s infinite`;
+    $('#fin').appendChild(el); out.push(el);
+  }
+  return out;
 }
-
+function canvasFireworks(ms){
+  const cv=$('#fw'),ctx=cv.getContext('2d'),W=cv.width=innerWidth,H=cv.height=innerHeight;
+  cv.classList.add('on');
+  let parts=[],t0=performance.now(),shots=0; const colors=['#ff6f91','#ffd86b','#a6e3a1','#9bd4ff','#cdb4f5','#fff'];
+  function shoot(){ const x=W*(0.2+Math.random()*0.6),y=H*(0.12+Math.random()*0.38),c=colors[rnd(colors.length)];
+    for(let i=0;i<70;i++){ const a=Math.random()*Math.PI*2,s=2+Math.random()*5; parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c}); } }
+  function frame(now){ const el=now-t0; if(el<ms-800&&el>shots*430){shoot();shots++;}
+    ctx.clearRect(0,0,W,H);
+    parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.vx*=0.98;p.life-=0.012;ctx.globalAlpha=Math.max(p.life,0);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill();});
+    ctx.globalAlpha=1; parts=parts.filter(p=>p.life>0);
+    if(el<ms) requestAnimationFrame(frame); else { cv.classList.remove('on'); ctx.clearRect(0,0,W,H); } }
+  requestAnimationFrame(frame);
+}
+let finTimer=null;
+function playFinale(fin,pts,crew,onDone){
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const box=$('#fin');
+  box.className='fin on '+fin.bg;
+  $('#fincrew').textContent=crew; $('#fincenter').textContent=fin.c;
+  $('#finword').textContent=fin.word; $('#finsub').textContent='⭐ '+pts+' ポイント';
+  const ms=reduce?1500:5000;
+  const ps=reduce?[]:particles(fin.em,fin.dir,16);
+  if(fin.bg==='bg-night'&&!reduce) canvasFireworks(ms);
+  speak(fin.say,700,'ほしが '+pts+'ポイント！');
+  const close=()=>{ if(finTimer) clearTimeout(finTimer); finTimer=null; box.onclick=null;
+    ps.forEach(e=>e.remove()); box.className='fin'; $('#fw').classList.remove('on'); burst(16); onDone(); };
+  box.onclick=close;
+  finTimer=setTimeout(close,ms);
+}
 showTitle();
 </script>
 </body>
