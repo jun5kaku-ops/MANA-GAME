@@ -172,7 +172,33 @@
   .node .lb{border:2px solid var(--ink)}
   .cell{background:linear-gradient(180deg,#fff,#FFF6E4)}
   #fw{z-index:10}
-  #ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:9}
+  /* なぞりがき */
+  .trwrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:4px 0;margin-top:auto}
+  .trq{font-size:19px;font-weight:900;text-align:center;margin:8px 0 2px}
+  #trBtns .btn{font-size:14px;white-space:nowrap;min-height:64px;padding:8px 2px}
+  #trBtns .btn b{font-size:26px}
+  #trsvg{width:min(100%,42vh);max-width:320px;aspect-ratio:1;touch-action:none;background:#fff;border:3px solid var(--ink);border-radius:22px;box-shadow:0 5px 0 var(--shadow)}
+  .trbg{fill:#fff}
+  .trgrid{stroke:#E4DAC8;stroke-width:.8;stroke-dasharray:3 3;fill:none}
+  .trguide{stroke:#EDE3D2;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .trcur{stroke:#BFB2A8;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.5 7}
+  .trdone{stroke:#6FBF5A;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .trink{stroke:#FF8FAB;stroke-width:8;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
+  .trmeas{fill:none;stroke:none}
+  .trstart{fill:#FF8FAB;stroke:var(--ink);stroke-width:1.6}
+  .trstart.pulse{animation:tpulse .6s ease-out 2}
+  .trnum{font-size:7px;font-weight:900;fill:#fff}
+  .trdot{fill:#FFD22E;stroke:var(--ink);stroke-width:1.6}
+  @keyframes tpulse{0%{r:6}50%{r:11}100%{r:6}}
+  /* 50おんひょう */
+  .kchart{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 2px;align-content:start}
+  .kc{font-family:inherit;font-size:24px;font-weight:900;color:var(--ink);background:#fff;border:3px solid var(--ink);
+    border-radius:14px;min-height:48px;box-shadow:0 4px 0 var(--shadow);position:relative}
+  .kc.easy{background:#DFF6D8}
+  .kc.got:after{content:"⭐";position:absolute;top:-6px;right:-4px;font-size:15px}
+  .kc.gap{background:none;border:0;box-shadow:none}
+  .kc:active{transform:translateY(4px);box-shadow:0 1px 0 var(--shadow)}
+;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:9}
   #ov.on{display:flex}
   #ov .word{font-size:64px;font-weight:900;color:#fff;text-shadow:0 0 0 8px var(--ink),0 8px 0 var(--shadow);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
   .conf{position:fixed;font-size:30px;pointer-events:none;animation:fall 1.2s ease-in forwards;z-index:8}
@@ -201,6 +227,7 @@
 <div id="fin" class="fin"><div class="fcrew" id="fincrew"></div><div class="fc" id="fincenter"></div><div class="fw" id="finword"></div><div class="fs" id="finsub"></div><div class="tap">タップ すると つづくよ</div></div>
 
 <script src="art.js"></script>
+<script src="kana.js"></script>
 <script>
 /* =========================================================
    1. がくしゅう データ
@@ -544,12 +571,14 @@ function showTitle(){
       <button class="btn c4 sm" id="zukan"><b>📔</b>アイスずかん</button>
       <button class="btn c5 sm" id="czukan"><b>👥</b>おともだち</button>
     </div>
-    <button class="btn c1 sm" id="setting" style="min-height:60px"><b style="font-size:30px">⚙️</b>こえの せってい</button>
-    <p>⭐ ポイント：${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}</p></div>`;
+    <button class="btn c3 sm" id="write" style="min-height:64px"><b style="font-size:30px">✏️</b>もじを かこう</button>
+    <button class="btn c1 sm" id="setting" style="min-height:58px"><b style="font-size:26px">⚙️</b>こえの せってい</button>
+    <p>⭐ ${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}　✏️ ${(save.wrote||[]).length}/46</p></div>`;
   $('#go').onclick=()=>{ speak('どこへ いこうかな？'); showMap(); };
   $('#shop').onclick=()=>{ speak('アイスやさんへ ようこそ'); showShop(); };
   $('#zukan').onclick=()=>{ speak('アイスずかん'); showZukan(); };
   $('#czukan').onclick=()=>{ speak('おともだち ずかん'); showCharZukan(); };
+  $('#write').onclick=()=>showKanaChart();
   $('#setting').onclick=showSetting;
 }
 
@@ -689,11 +718,22 @@ function choice(emoji,text,opts,onPick){
 }
 /* --- おはなし＋ミニゲーム（「つぎへ」だけの がめんは なし） --- */
 let drillBag=[];
-const DRILL_TYPES=['color','add','count','word','order','alpha'];
+const DRILL_TYPES=['color','add','count','word','order','alpha','trace'];
+const CAN_TRACE=(()=>{try{const e=document.createElementNS('http://www.w3.org/2000/svg','path');
+  return typeof e.getTotalLength==='function'&&typeof e.getPointAtLength==='function';}catch(e){return false}})();
 function nextDrillType(){ if(!drillBag.length) drillBag=shuffle(DRILL_TYPES); return drillBag.shift(); }
 
 function tell(emoji,text,force){
   let type=force||nextDrillType();
+  if(type==='trace'&&(!CAN_TRACE||typeof startTrace!=='function')) type='word';
+  if(type==='trace'&&!force){
+    /* おはなしに でてきた ことばの 1もじを なぞる（かんたんな もじを えらぶ）*/
+    const ob=findObj(text);
+    let pool=(ob&&/^[ぁ-ん]+$/.test(ob.w))?ob.w.split('').filter(k=>KANA_PATHS[k]&&KANA_PATHS[k].length<=2):[];
+    if(!pool.length) pool=EASY_KANA;
+    const ch=pool[rnd(pool.length)];
+    return traceDrill(emoji,text,ch,ob);
+  }
   if(!force){
     const ob=findObj(text);
     /* おはなしに ものが でてきたら、それに つなげられる ドリルに よせる */
@@ -717,6 +757,12 @@ function tellPlain(emoji,text,btnLabel,btnEmoji,onClick){
   $('#nx').onclick=()=>{ stopSpeak(); onClick(); };
 }
 
+/* おはなし＋なぞりがき（せいかいで ⭐ が ふえる）*/
+function traceDrill(emoji,text,ch,ob){
+  const lead=(ob&&ob.w.includes(ch)?`${ob.w}の 「${ch}」`:`「${ch}」`)+'を ゆびで かいてみよう';
+  startTrace(ch,{lead,story:text,scene:scene(emoji,{cls:'mini'}),back:showTitle,
+    onDone:()=>{ A.stars++; run(); }});
+}
 function makeDrill(type,ob){
   const N=ob?ob.w:null;
   if(type==='color'){
