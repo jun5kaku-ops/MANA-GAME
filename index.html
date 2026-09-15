@@ -50,6 +50,9 @@
   .btn.c1{background:var(--sun)}.btn.c2{background:var(--berry)}.btn.c3{background:var(--leaf)}.btn.c4{background:var(--pond)}.btn.c5{background:var(--grape)}
   .btn.big{font-size:42px}
   .btn.sm{font-size:19px;min-height:72px;padding:10px 6px}.btn.sm b{font-size:38px}
+  .choices.kana{gap:8px}
+  .btn.kchip{min-height:58px;padding:6px 2px;font-size:30px;border-radius:18px;box-shadow:0 5px 0 var(--shadow)}
+  .btn.kchip:active{transform:translateY(4px);box-shadow:0 1px 0 var(--shadow)}
   .btn.wrong{animation:wiggle .5s;opacity:.55}
   .btn.right{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 
@@ -99,7 +102,7 @@
   .drill .eq{font-size:30px;font-weight:900}
   .drill .cbox{width:96px;height:96px;border-radius:24px;margin:6px auto 2px;box-shadow:0 5px 0 var(--shadow);border:5px solid #fff}
   .drill .slots{display:flex;gap:8px;justify-content:center;margin-top:6px}
-  .drill .slot{width:52px;height:60px;border-radius:14px;background:#F3ECE3;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:var(--ink)}
+  .drill .slot{width:46px;height:52px;border-radius:14px;background:#F3ECE3;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:var(--ink)}
   .drill .slot.fill{background:var(--leaf);animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
   .stage.mini .main{font-size:54px}
   .stage.mini{min-height:96px;margin:2px 0 6px}
@@ -476,7 +479,21 @@ const rnd=n=>Math.floor(Math.random()*n);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
 const pick=(arr,k,notIdx)=>shuffle(arr.map((v,i)=>i).filter(i=>i!==notIdx)).slice(0,k).map(i=>arr[i]);
 const COLORS=['c1','c2','c3','c4','c5'];
-const clean=t=>t.replace(/[「」！？…]/g,' ');
+/* よみあげ用に ととのえる：HTMLタグを のぞき、かぎかっこだけ とる（。！？は のこして くぎりを つくる）*/
+const clean=t=>t.replace(/<[^>]*>/g,' ')
+  .replace(/[ 　]*「[ 　]*/g,'、 ').replace(/[」…]/g,' ')
+  .replace(/([。！？、])\s*、/g,'$1 ')
+  .replace(/[ 　]{2,}/g,' ').replace(/^[、 　]+/,'').trim();
+/* じょし の「は」「へ」は wa / e で よませる（ことばの おわりに ある は・へ だけ）*/
+function yomi(t){
+  return String(t).split(/([ 　。、！？\n])/).map(tok=>{
+    if(tok.length>1){
+      if(tok.endsWith('は')) return tok.slice(0,-1)+'わ';
+      if(tok.endsWith('へ')) return tok.slice(0,-1)+'え';
+    }
+    return tok;
+  }).join('');
+}
 const hon=n=>/(さん|ちゃん|くん|ひめ|おうじ|はかせ|まじょ)$/.test(n)?n+'':n+'さん';
 
 let save={points:0,owned:[],chars:[],rate:2,pitch:2,voice:''};
@@ -492,7 +509,8 @@ const RATES=[0.62,0.75,0.9], PITCHES=[0.9,1.15,1.45];
 let sq=[], sqTimer=null;
 function jaVoices(){ try{ return speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith('ja')) }catch(e){ return [] } }
 function stopSpeak(){ if(sqTimer) clearTimeout(sqTimer); sqTimer=null; sq=[]; try{ speechSynthesis.cancel() }catch(e){} }
-function speak(...parts){ if(!('speechSynthesis' in window)) return; stopSpeak(); sq=parts.flat(); playNext(); }
+function speak(...parts){ if(!('speechSynthesis' in window)) return; stopSpeak();
+  sq=parts.flat().map(p=>typeof p==='string'?yomi(p):p); playNext(); }
 function playNext(){
   if(!sq.length) return;
   const p=sq.shift();
@@ -736,7 +754,7 @@ function makeDrill(type,ob){
   if(type==='alpha'){
     const i=rnd(26), L=ALPHA[i], others=pick(ALPHA,2,i);
     const lead=N?`${N}に もじが かいてある！ `:'';
-    return {q:lead+`「${ALPHA_YOMI[L]}」は どれ？`,read:(N?N+'に もじが かいてあるよ。 ':'')+ALPHA_YOMI[L]+' は どれ？',
+    return {q:lead+`「${ALPHA_YOMI[L]}」は どれ？`,read:(N?N+'に もじが かいてあるよ。 ':'')+ALPHA_YOMI[L]+'は どれ？',
       vis:`<div class="vis">「${ALPHA_YOMI[L]}」</div>`,ans:L,hint:ALPHA_YOMI[L],
       opts:shuffle([L,...others]).map(v=>({l:v,v:v,big:true}))};
   }
@@ -773,7 +791,7 @@ function drillScene(emoji,text,type){
   app.innerHTML=header()+scene(emoji,{cls:'mini'})+`
     <div class="bubble mini"><div class="txt">${text}</div><button class="say">🔊</button></div>
     <div class="drill"><div class="qq">${d.q}</div>${d.vis||''}${slots}</div>
-    <div class="choices ${three?'three':'two'}">${d.opts.map((o,i)=>`<button class="btn ${COLORS[i%5]} ${o.big?'big':''} ${three&&!o.big?'sm':''}" data-v="${o.v}" data-i="${i}">${o.l}</button>`).join('')}</div>`;
+    <div class="choices ${d.order?'kana':(three?'three':'two')}" ${d.order?`style="grid-template-columns:repeat(${d.opts.length},1fr)"`:''}>${d.opts.map((o,i)=>`<button class="btn ${COLORS[i%5]} ${d.order?'kchip':(o.big?'big':'')} ${!d.order&&three&&!o.big?'sm':''}" data-v="${o.v}" data-i="${i}">${o.l}</button>`).join('')}</div>`;
   bindCommon(clean(text)+' '+d.read);
   if(d.readOpts) speak(clean(text),700,d.read,900,d.opts.map(o=>o.l).join('？ ')+'？');
   else speak(clean(text),700,d.read);
