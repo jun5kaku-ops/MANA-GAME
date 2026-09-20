@@ -66,7 +66,18 @@
   /* map */
   .map{position:relative;flex:1;margin:6px 0;border-radius:26px;overflow:hidden;
        background:linear-gradient(180deg,#BFE9FF 0%,#DFF6D8 45%,#FFF0C9 100%);box-shadow:0 5px 0 var(--shadow)}
-  .map>svg{position:absolute;inset:0;width:100%;height:100%}
+  .mapscroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mapscroll::-webkit-scrollbar{display:none}
+  .mapinner{position:relative;width:100%;height:200%}
+  .mapinner>svg{position:absolute;inset:0;width:100%;height:100%}
+  /* スクロールできる むきを しめす やじるし（さわっても じゃまに ならない）*/
+  .maparrow{position:absolute;left:0;right:0;z-index:5;height:46px;pointer-events:none;border:0;padding:0;
+    display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--ink);opacity:.72}
+  .maparrow.up{top:0;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,0));align-items:flex-start;padding-top:4px;animation:arrUp 1.6s ease-in-out infinite}
+  .maparrow.down{bottom:0;background:linear-gradient(0deg,rgba(255,255,255,.72),rgba(255,255,255,0));align-items:flex-end;padding-bottom:4px;animation:arrDown 1.6s ease-in-out infinite}
+  .maparrow.off{display:none}
+  @keyframes arrUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  @keyframes arrDown{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
   .map .mapbg{z-index:0}
   .map .node{z-index:2}
   .mapitem{position:absolute;transform:translate(-50%,-50%);font-size:17px;z-index:1;filter:drop-shadow(0 2px 0 rgba(43,32,24,.18));animation:bob 2.6s ease-in-out infinite}
@@ -690,16 +701,31 @@ function showMap(){
   const path=pts.map((s,i)=>(i?'L':'M')+s.x+' '+s.y).join(' ');
   app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="party" style="font-size:20px;font-weight:900">どこへ いく？</div><div class="pts">🍦 ${save.owned.length}</div></div>
     <div class="map">
-      ${typeof mapArt==='function'?mapArt():''}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path d="${path}" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3" opacity=".9"/>
-      </svg>
-      ${mapDeco()}
-      ${UNLOCKS.map(u=>{ const s=STAGES.find(x=>x.id===u.stage), ok=un.includes(s);
-        return `<button class="node ${ok?'':'lock'}" style="left:${s.x}%;top:${s.y}%" ${ok?`data-id="${s.id}"`:''}>
-          <div class="bub">${ok?s.e:'🔒'}</div><div class="lb">${ok?s.n:'🍦'+u.need}</div></button>`; }).join('')}
+      <div class="mapscroll" id="mapScroll"><div class="mapinner">
+        ${typeof mapArt==='function'?mapArt():''}
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="${path}" fill="none" stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="2.2 2.2" opacity=".9"/>
+        </svg>
+        ${mapDeco()}
+        ${UNLOCKS.map(u=>{ const st=STAGES.find(x=>x.id===u.stage), ok=un.includes(st);
+          return `<button class="node ${ok?'':'lock'}" style="left:${st.x}%;top:${st.y}%" ${ok?`data-id="${st.id}"`:''}>
+            <div class="bub">${ok?st.e:'🔒'}</div><div class="lb">${ok?st.n:'🍦'+u.need}</div></button>`; }).join('')}
+      </div></div>
+      <button class="maparrow up off" id="mapUp">▲</button>
+      <button class="maparrow down off" id="mapDown">▼</button>
     </div>`;
   $('#homeBtn').onclick=showTitle;
+  const sc=$('#mapScroll'), up=$('#mapUp'), dn=$('#mapDown');
+  const refresh=()=>{
+    const top=sc.scrollTop, max=sc.scrollHeight-sc.clientHeight;
+    up.classList.toggle('off', top<8);
+    dn.classList.toggle('off', top>max-8);
+  };
+  sc.addEventListener('scroll',refresh,{passive:true});
+
+  /* はじまりの ばしょ（した）から みせる */
+  sc.scrollTop=sc.scrollHeight;
+  refresh();
   app.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{
     const st=STAGES.find(s=>s.id===b.dataset.id); speak(st.n); setTimeout(()=>startAdventure(st),350);
   });
