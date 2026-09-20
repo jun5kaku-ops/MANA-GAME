@@ -29,6 +29,8 @@ function earPart(kind,c1,c2){
     case 'antler': return `<path d="M32 28 L24 10 M24 10 L14 8 M24 10 L22 0" fill="none" ${ln(3.6)}/>`+
       `<path d="M68 28 L76 10 M76 10 L86 8 M76 10 L78 0" fill="none" ${ln(3.6)}/>`;
     case 'spike': return `<path d="M14 44 L4 30 L18 30 Z M26 30 L20 12 L34 22 Z M50 22 L50 2 L62 18 Z M74 30 L84 14 L82 30 Z M86 44 L96 32 L92 46 Z" fill="${c2}" ${ln(2.6)}/>`;
+    case 'horn1': return `<path d="M44 26 L50 2 L58 22 Z" fill="#FFD22E" ${ln(2.6)}/><path d="M47 18 L54 14" fill="none" ${ln(2)}/>`;
+    case 'comb': return `<path d="M36 22 Q40 8 46 20 Q52 6 58 20 Q64 10 66 24 Z" fill="#E4572E" ${ln(2.6)}/>`;
     case 'antenna': return `<path d="M50 22 L50 8" fill="none" ${ln(3.4)}/><circle cx="50" cy="6" r="6" fill="${c2}" ${ln(2.6)}/>`;
     default: return '';
   }
@@ -56,7 +58,13 @@ function acc(kind,c){
 /* --- テンプレート --- */
 function furry(a){
   const c1=a.c1,c2=a.c2||'#FFF3E2';
-  return earPart(a.ear,c1,c2)
+  let mane='';
+  if(a.mane){ const pts=[];
+    for(let i=0;i<28;i++){const an=i*Math.PI/14, r=i%2?46:36;
+      pts.push((50+r*Math.cos(an)).toFixed(1)+' '+(56+r*Math.sin(an)*0.95).toFixed(1));}
+    mane=`<path d="M${pts.join(' L')} Z" fill="${a.ac||'#C9873C'}" ${ln(3)}/>`;
+  }
+  return mane+earPart(a.ear,c1,c2)
     +`<ellipse cx="50" cy="56" rx="38" ry="35" fill="${c1}" ${ln(3.4)}/>`
     +(a.mask?`<ellipse cx="50" cy="66" rx="24" ry="20" fill="${c2}"/>`:'')
     +shine()
@@ -208,6 +216,28 @@ function bug(a){
     +`<path d="M20 34 Q50 12 80 34 Q50 40 20 34 Z" fill="${SK}"/>`
     +`<circle cx="40" cy="28" r="4" fill="${W}"/><circle cx="60" cy="28" r="4" fill="${W}"/>`;
 }
+
+/* ぞう */
+function elephant(a){
+  const c1=a.c1||'#B8BCC8';
+  return `<ellipse cx="18" cy="48" rx="17" ry="21" fill="${c1}" ${ln(3)}/><ellipse cx="82" cy="48" rx="17" ry="21" fill="${c1}" ${ln(3)}/>`
+    +`<ellipse cx="50" cy="52" rx="31" ry="30" fill="${c1}" ${ln(3.4)}/>`
+    +shine(38,34)+eyes(38,62,48,6)
+    +`<path d="M50 62 Q44 84 58 92" fill="none" stroke="${SK}" stroke-width="18" stroke-linecap="round"/>`
+    +`<path d="M50 62 Q44 84 58 92" fill="none" stroke="${c1}" stroke-width="12" stroke-linecap="round"/>`
+    +blush(62);
+}
+/* へび */
+function snake(a){
+  const c1=a.c1||'#7FC96A', c2=a.c2||'#FFF3D6';
+  return `<path d="M18 92 Q6 72 28 64 Q54 56 42 42" fill="none" stroke="${SK}" stroke-width="22" stroke-linecap="round"/>`
+    +`<path d="M18 92 Q6 72 28 64 Q54 56 42 42" fill="none" stroke="${c1}" stroke-width="16" stroke-linecap="round"/>`
+    +`<ellipse cx="54" cy="32" rx="26" ry="21" fill="${c1}" ${ln(3.2)}/>`
+    +`<ellipse cx="54" cy="38" rx="15" ry="10" fill="${c2}"/>`
+    +eyes(46,64,28,6)
+    +`<path d="M54 46 L54 56 M54 56 L49 61 M54 56 L59 61" fill="none" stroke="#E4572E" stroke-width="3" stroke-linecap="round"/>`
+    +blush(40);
+}
 function planet(a){
   return `<ellipse cx="50" cy="58" rx="32" ry="32" fill="${a.c1}" ${ln(3.4)}/>`
     +`<ellipse cx="50" cy="60" rx="48" ry="12" fill="none" stroke="#FFD86B" stroke-width="7"/>`
@@ -235,6 +265,30 @@ function egg(a){
    キャラクターの データ
    ========================================================= */
 const CHAR_ART={
+  /* のうじょう */
+  'うし':{t:'furry',ear:'horn',c1:'#FFFFFF',c2:'#3B2F2F',snout:1,mask:1},
+  'ぶた':{t:'furry',ear:'cat',c1:'#FFB5C5',c2:'#FFE3EC',snout:1},
+  'にわとり':{t:'bird',c1:'#FFF6E2',c2:'#FF9F1C',accs:['comb']},
+  'ひつじ':{t:'furry',ear:'round',c1:'#FFF8F0',c2:'#E8DCC8',snout:1},
+  'トラクター':{t:'car',c1:'#5AA152'},
+  /* サーカス */
+  'ピエロ':{t:'human',skin:'#FFE6D0',hair:'#E4572E',accs:['crown']},
+  'ぞう':{t:'elephant',c1:'#B8BCC8'},
+  'ライオン':{t:'furry',ear:'round',c1:'#F0C24B',c2:'#FFF3D6',mane:1,ac:'#C9873C',snout:1},
+  'アシカ':{t:'sea',c1:'#8A9AB0',c2:'#EDF3FA',whisk:1,fin:1},
+  'てじなしさん':{t:'human',skin:'#F2C89A',hair:'#2B2018',accs:['witch']},
+  /* ジャングル */
+  'さる':{t:'furry',ear:'round',c1:'#B08050',c2:'#FFE3C2',snout:1},
+  'オウム':{t:'bird',c1:'#3FA95B',c2:'#FF9F1C',crest:1},
+  'へび':{t:'snake',c1:'#7FC96A'},
+  'とら':{t:'furry',ear:'cat',c1:'#F0A03C',c2:'#FFF3D6',whisk:1,mask:1},
+  'カメレオン':{t:'dino',c1:'#6FE3C8',c2:'#FFF3D6'},
+  /* にじの くに */
+  'にじの ようせい':{t:'fairy',c1:'#FF8FAB'},
+  'くもの こ':{t:'sweet',kind:'marsh',c1:'#F6FBFF'},
+  'かぜの こ':{t:'fairy',c1:'#9BD4FF'},
+  'にじいろの とり':{t:'bird',c1:'#CDB4F5',c2:'#FFD22E',crest:1},
+  'ユニコーン':{t:'furry',ear:'long',c1:'#FFFFFF',c2:'#FFD6E3',accs:['horn1']},
   /* うみ */
   'かに':{t:'sea',kind:'crab',c1:'#E4572E'},
   'かめ':{t:'sea',kind:'turtle',c1:'#8FD48C',c2:'#7A5A3A'},
@@ -317,7 +371,7 @@ const CHAR_ART={
   'グミの うさぎ':{t:'furry',ear:'long',c1:'#FF8FAB',c2:'#FFE3EC'}
 };
 
-const TPL={furry,bird,sea,dino,human,mermaid,fairy,robot,alien,sweet,snowman,bug,planet,car,egg};
+const TPL={furry,bird,sea,dino,human,mermaid,fairy,robot,alien,sweet,snowman,bug,planet,car,egg,elephant,snake};
 
 /* キャラクターの え（SVG文字列）*/
 function charArt(name,size){
@@ -403,6 +457,36 @@ function bgArt(id){
         <path d="M270 104 L356 48 L430 104 Z" fill="#D9ECFF"/>
         <rect y="100" width="400" height="40" fill="#FFFFFF"/>
         ${[40,110,190,260,330].map((x,i)=>`<circle cx="${x}" cy="${118+i%2*8}" r="5" fill="#D9ECFF" stroke="#2B2018" stroke-width="2"/>`).join('')}`)}`;
+    case 'noujou': return `<div class="sky" style="background:linear-gradient(180deg,#8FD0F5 0%,#CFEFFF 45%,#FFF3D0 100%)"></div>
+      ${rsun(78,14,26,'#FFF9D0','#FFB347',0)}${clouds([[14,10,26],[44,18,18]])}
+      ${land(`<rect y="54" width="400" height="86" fill="#A8D96A"/>
+        <path d="M0 54 L400 54" stroke="#7FB84A" stroke-width="3"/>
+        ${[0,1,2,3,4].map(i=>`<path d="M0 ${70+i*16} L400 ${64+i*16}" stroke="#8FC55A" stroke-width="5" opacity=".7"/>`).join('')}
+        <rect x="40" y="18" width="86" height="46" rx="4" fill="#C0392B"/>
+        <path d="M32 20 L83 -6 L134 20 Z" fill="#8E2F22"/>
+        <rect x="70" y="38" width="26" height="26" fill="#FFF3E2"/>
+        ${[250,290,330,370].map((x,i)=>`<path d="M${x} 64 L${x} 30 M${x-10} 40 L${x} 30 L${x+10} 40" stroke="#E8C24B" stroke-width="5" fill="none"/>`).join('')}`)}`;
+    case 'circus': return `<div class="sky night" style="background:linear-gradient(180deg,#2B1B4A 0%,#5B2C6F 55%,#B4478A 100%)"></div>
+      <div class="stars"></div>${moon(18,12,20,'#FFF3B0')}
+      ${land(`<rect y="96" width="400" height="44" fill="#5A3E2B"/>
+        <path d="M120 96 L200 6 L280 96 Z" fill="#F2F2F2"/>
+        ${[0,1,2,3,4,5].map(i=>`<path d="M200 6 L${140+i*26} 96 L${152+i*26} 96 Z" fill="#E4572E" opacity=".9"/>`).join('')}
+        <path d="M186 96 L186 62 Q200 52 214 62 L214 96 Z" fill="#2B1B4A"/>
+        <path d="M200 6 L200 -8 M200 -8 L214 -2 L200 4 Z" stroke="#FFD86B" stroke-width="3" fill="#FFD86B"/>
+        ${[40,70,330,366].map((x,i)=>`<circle cx="${x}" cy="${70+i%2*10}" r="9" fill="${i%2?'#FFD86B':'#6FE3C8'}" stroke="#2B2018" stroke-width="2.5"/>`).join('')}`)}`;
+    case 'jungle': return `<div class="sky" style="background:linear-gradient(180deg,#5EC08A 0%,#A8E0B0 45%,#E8F6CF 100%)"></div>
+      ${rsun(22,12,24,'#FFF9D0','#FFD86B',0)}
+      ${land(`<rect y="70" width="400" height="70" fill="#2F6B3F"/>
+        ${[30,110,200,290,370].map((x,i)=>`<g><path d="M${x} 110 Q${x-6} 70 ${x-2} 40" stroke="#7A5A3A" stroke-width="9" fill="none"/>
+          ${[0,1,2,3,4].map(k=>`<path d="M${x-2} 40 Q${x-2+(k-2)*26} ${18+Math.abs(k-2)*6} ${x-2+(k-2)*38} ${40-Math.abs(k-2)*4}" stroke="#3E8F4A" stroke-width="9" fill="none" stroke-linecap="round"/>`).join('')}</g>`).join('')}
+        <path d="M0 96 Q100 84 200 96 T400 92 L400 140 L0 140 Z" fill="#245A33"/>
+        ${[60,150,250,340].map((x,i)=>`<path d="M${x} 70 Q${x+8} 92 ${x} 112" stroke="#6FA85A" stroke-width="4" fill="none"/>`).join('')}`)}`;
+    case 'niji': return `<div class="sky" style="background:linear-gradient(180deg,#BFE9FF 0%,#E8D6FF 50%,#FFE3F1 100%)"></div>
+      ${clouds([[16,16,28],[68,10,24],[44,26,18],[88,22,16]])}
+      ${land(`${['#E4572E','#FF9F1C','#FFD22E','#6FBF5A','#4FA3E8','#7E5BCF'].map((c,i)=>
+          `<path d="M-20 ${140} Q200 ${-30+i*16} 420 ${140}" fill="none" stroke="${c}" stroke-width="12"/>`).join('')}
+        <path d="M0 108 Q100 96 200 108 T400 104 L400 140 L0 140 Z" fill="#F6E8FF"/>
+        ${[50,140,250,350].map((x,i)=>`<circle cx="${x}" cy="${122+i%2*8}" r="7" fill="#fff" stroke="#2B2018" stroke-width="2.5"/>`).join('')}`)}`;
     default: return `<div class="sky" style="background:linear-gradient(180deg,#7ED0F5 0%,#CFEFFF 40%,#FFF1CF 100%)"></div>
       ${rsun(66,16,32,'#FFF3B0','#FF9AE0',1)}${clouds([[12,10,24],[40,20,16],[86,12,18]])}${grid('#3E7A6E')}
       ${land(`<path d="M0 46 Q100 26 200 46 T400 42 L400 140 L0 140 Z" fill="#8FBF6A"/>
@@ -412,18 +496,27 @@ function bgArt(id){
   }
 }
 
+const MAP_ITEMS=[["🌷",88.2,90.4],["🌻",22.3,45.6],["🌼",68.9,43.5],["🍄",51.1,71.3],["🌲",75.5,58.4],["🪨",73.4,38.8],["🦋",33.3,13.6],["🐞",8.5,30.5],["🐝",56.6,79.0],["🐦",34.8,38.9],["🎈",54.1,87.8],["🍎",10.0,43.0],["🍓",66.8,92.7],["⭐",24.4,15.2],["🌸",27.8,43.5],["🌵",14.8,62.2],["🪵",47.4,46.0],["🐚",69.7,6.4],["🍀",38.9,75.9],["🦆",23.3,66.6],["🐢",31.8,86.0],["🌺",74.9,65.9],["🍁",48.0,55.3],["🐇",13.1,71.7],["🧺",40.6,66.5],["⛲",6.7,60.4],["🪁",58.2,35.1],["🎏",43.4,34.2],["🍉",93.3,93.4],["🐈",16.6,39.8],["🪻",59.7,87.8],["🌾",92.7,71.9],["🦔",68.8,65.5],["🍒",91.7,8.0],["🎀",65.0,16.0],["🪷",56.6,94.3],["🐿️",50.6,78.0],["🌰",16.5,51.2],["🪄",37.2,24.3],["🕊️",27.3,9.4],["🍋",62.3,73.6],["🐌",59.0,41.8],["🌙",48.7,37.2],["🪺",93.7,43.8],["🧸",67.4,28.8],["🎠",93.5,19.2],["🍇",86.1,72.4],["🍊",62.6,9.9],["🌳",87.2,81.5],["🦢",44.5,26.4],["🐠",77.6,28.8],["🌊",5.6,51.0],["⛵",33.1,76.0],["🏖️",56.5,67.5],["🪸",7.2,23.1],["🐙",69.7,22.8],["🦀",46.3,63.3],["🐳",82.0,91.6],["☁️",66.2,35.3],["🌈",32.6,30.3],["🎪",6.7,68.7],["🎡",26.2,81.7],["🎢",94.8,36.5],["🎨",41.2,44.0],["🪀",21.6,75.8],["🧩",92.4,27.1],["🎲",25.7,93.6],["🪅",75.5,49.0],["🍿",94.2,81.2],["🧁",71.1,53.7],["🍩",6.3,78.1],["🍬",6.7,94.2],["🚲",31.5,23.1],["🚂",73.4,94.0],["🎺",32.0,94.0],["🥁",70.5,13.7],["🪈",20.1,59.5],["📚",41.8,51.7],["🔭",44.6,72.6],["🗺️",56.9,9.4],["🧭",34.6,67.8],["⛺",29.3,70.3],["🔥",42.1,58.9],["🍢",92.5,50.8],["🎋",35.4,45.9],["🏮",38.1,17.5],["🪴",80.3,69.8],["🌱",53.2,42.6],["🐣",6.5,37.6],["🦎",52.1,61.8],["🦒",36.2,7.5],["🐘",62.4,66.5]];
+const FRIEND_SPOTS=[[8,70],[36,72],[64,44],[94,48],[40,44],[10,40],[68,66],[30,84]];
+
 /* マップの はいけい（ばしょが どこに あるか わかる え）*/
 function mapArt(){
   const blob=(x,y,rx,ry,f,o=1)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f}" opacity="${o}"/>`;
   return `<svg class="mapbg" viewBox="0 0 100 100" preserveAspectRatio="none">
     <rect width="100" height="100" fill="#C6E8A8"/>
-    <rect width="100" height="16" fill="#1B1240"/>
-    <path d="M0 16 Q30 24 58 15 Q80 8 100 16 L100 0 L0 0 Z" fill="#1B1240"/>
-    ${blob(60,52,20,13,'#CDB4F5',.85)}
-    ${blob(56,20,20,12,'#EAF6FF')}
-    ${blob(22,28,17,11,'#8FD48C')}
+    ${blob(14,12,16,10,'#EAD9FF')}
+    <path d="M2 16 Q14 2 26 16" fill="none" stroke="#FF9F1C" stroke-width="2"/>
+    <path d="M4 17 Q14 5 24 17" fill="none" stroke="#6FBF5A" stroke-width="2"/>
+    ${blob(46,10,16,9,'#2F6B3F',.75)}
+    ${blob(82,16,15,9,'#F2D9E8')}
+    <path d="M74 20 L82 8 L90 20 Z" fill="#E4572E"/>
+    ${blob(84,38,15,9,'#F0E2A8')}
+    <rect x="80" y="33" width="9" height="7" rx="1" fill="#C0392B"/>
+    ${blob(60,52,19,12,'#CDB4F5',.85)}
+    ${blob(56,22,18,11,'#EAF6FF')}
+    ${blob(22,28,16,10,'#8FD48C')}
     <path d="M14 30 L22 20 L30 30 Z" fill="#6B8E6B"/>
-    ${blob(30,57,17,11,'#FFC8E4')}
+    ${blob(30,57,16,10,'#FFC8E4')}
     ${blob(74,80,17,11,'#6BAF5A')}
     ${blob(70,79,7,5,'#4F8F4A')}${blob(79,81,6,4.5,'#4F8F4A')}
     ${blob(44,90,20,12,'#A8D48C')}
