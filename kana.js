@@ -188,9 +188,13 @@ function startTrace(ch,opt){
     cur.setAttribute('d',strokes[si]);
     ink.setAttribute('d','');
     hint.innerHTML='';
-    const s=pts[0];
-    hint.appendChild(mk('circle',{cx:s.x,cy:s.y,r:6,class:'trstart'}));
-    hint.appendChild(mk('text',{x:s.x,y:s.y+2.6,class:'trnum','text-anchor':'middle'})).textContent=String(si+1);
+    const st=pts[0], nx=pts[Math.min(6,pts.length-1)];
+    let dx=st.x-nx.x, dy=st.y-nx.y; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L;
+    const bx=Math.min(93,Math.max(7,st.x+dx*13)), by=Math.min(93,Math.max(7,st.y+dy*13));
+    hint.appendChild(mk('circle',{cx:st.x,cy:st.y,r:4.4,class:'trstart'}));
+    hint.appendChild(mk('line',{x1:st.x,y1:st.y,x2:bx,y2:by,class:'trlead'}));
+    hint.appendChild(mk('circle',{cx:bx,cy:by,r:6.4,class:'trnumbg'}));
+    hint.appendChild(mk('text',{x:bx,y:by+2.4,class:'trnum','text-anchor':'middle'})).textContent=String(si+1);
   }
   function toSvg(ev){
     const r=svg.getBoundingClientRect();
