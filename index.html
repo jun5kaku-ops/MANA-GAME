@@ -47,6 +47,7 @@
   .btn small{font-size:17px;font-weight:700;color:var(--soft)}
   .btn:active{transform:translateY(5px);box-shadow:0 2px 0 var(--shadow)}
   .btn:disabled{opacity:.4;box-shadow:0 3px 0 var(--shadow)}
+  .btn.c0{background:#FFFDF7}
   .btn.c1{background:var(--sun)}.btn.c2{background:var(--berry)}.btn.c3{background:var(--leaf)}.btn.c4{background:var(--pond)}.btn.c5{background:var(--grape)}
   .btn.big{font-size:42px}
   .btn.sm{font-size:19px;min-height:72px;padding:10px 6px}.btn.sm b{font-size:38px}
@@ -82,7 +83,7 @@
   .map .node{z-index:2}
   .mapitem{position:absolute;transform:translate(-50%,-50%);font-size:17px;z-index:1;filter:drop-shadow(0 2px 0 rgba(43,32,24,.18));animation:bob 2.6s ease-in-out infinite}
   .mapfriend{position:absolute;transform:translate(-50%,-50%);z-index:1;display:block;line-height:0;
-    background:rgba(255,255,255,.75);border:2px solid var(--ink);border-radius:50%;padding:2px;animation:bob 2.2s ease-in-out infinite}
+    filter:drop-shadow(0 3px 0 rgba(43,32,24,.22));animation:bob 2.2s ease-in-out infinite}
   .mapfriend svg{display:block}
   .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;font-family:inherit}
   .node .bub{width:64px;height:64px;border-radius:50%;background:#fff;box-shadow:0 4px 0 var(--shadow);display:flex;align-items:center;justify-content:center;font-size:36px;transition:transform .08s}
@@ -203,11 +204,13 @@
   .trdone{stroke:#6FBF5A;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .trink{stroke:#FF8FAB;stroke-width:8;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
   .trmeas{fill:none;stroke:none}
-  .trstart{fill:#FF8FAB;stroke:var(--ink);stroke-width:1.6}
+  .trstart{fill:#FF6F91;stroke:var(--ink);stroke-width:1.4}
   .trstart.pulse{animation:tpulse .6s ease-out 2}
-  .trnum{font-size:7px;font-weight:900;fill:#fff}
+  .trlead{stroke:var(--ink);stroke-width:1.1;opacity:.5}
+  .trnumbg{fill:#FF8FAB;stroke:var(--ink);stroke-width:1.6}
+  .trnum{font-size:7.4px;font-weight:900;fill:#fff}
   .trdot{fill:#FFD22E;stroke:var(--ink);stroke-width:1.6}
-  @keyframes tpulse{0%{r:6}50%{r:11}100%{r:6}}
+  @keyframes tpulse{0%{r:4.4}50%{r:10}100%{r:4.4}}
   /* 50おんひょう */
   .kchart{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 2px;align-content:start}
   .kc{font-family:inherit;font-size:24px;font-weight:900;color:var(--ink);background:#fff;border:3px solid var(--ink);
@@ -478,7 +481,18 @@ const STAGES=[
    {t:'しゃぼんだまが たくさん とんできた。 どうする？',c:[{n:'われないように はこぶ',e:'🫧',tag:'takara',t:'そーっと そーっと。 わらずに はこべたよ！'},{n:'とばして あそぶ',e:'💨',tag:'asobi',t:'ふーっ！ そらいっぱいに ひろがった。'}]},
    {t:'かみなりの おとが した。 どうする？',c:[{n:'くもの したで まつ',e:'☔',tag:'nemuri',t:'すぐに やんで、 また にじが でたよ。'},{n:'かぜの こに たのむ',e:'🌬️',tag:'asobi',t:'びゅーん！ くもを ふきとばしてくれた。'}]},
    {t:'そらに おおきな とびらが あらわれた！ どうする？',c:[{n:'あけて みる',e:'🚪',tag:'takara',t:'なかは ほしぞら！ うちゅうまで つながってるんだって。'},{n:'ノックする',e:'✊',tag:'uta',t:'こんこん。 なかから きれいな おんがくが きこえたよ。'}]}],
- goal:'にじが そらいっぱいに かかった。 にじの くにの ぼうけん、'}
+ goal:'にじが そらいっぱいに かかった。 にじの くにの ぼうけん、'},
+{id:'kumo',n:'くもの くに',e:'☁️',ce:'☁️',x:66,y:4,anyChars:true,
+ finales:['hoshizora','hanabi','shabon','gochisou','parade'],
+ trans:[{n:'しゃぼんだま',e:'🫧',kind:'sky',t:'おおきな しゃぼんだまに のって ふわり。 くもの うえまで のぼっていくよ。'},{n:'にじの エレベーター',e:'🌈',kind:'sky',t:'にじの エレベーターで しゅーっ。 どんどん たかく なるよ！'}],
+ arrive:'{by} くもの くにに ついたよ！ ゆかも かべも ふわふわの くも。 みんなが あつまってる！',
+ chars:[{n:'くもの こ',e:'☁️',l:'「ようこそ、 くもの くにへ」'}],
+ acts:[{n:'くもで とびはねる',e:'☁️',tag:'asobi',t:'ぽよん ぽよん！ トランポリンみたい。 {crew}も おおよろこび。'},{n:'みんなで しゃしん',e:'📷',tag:'takara',t:'くもの うえで しゃしんを とったよ。 みんな にこにこ！'},{n:'ごちそうを ならべる',e:'🍽️',tag:'gohan',t:'くもの テーブルに ごちそうが いっぱい。 {crew}と いただきます！'},{n:'みんなで うたう',e:'🎤',tag:'uta',t:'くもの くにに こえが ひびいて、 そらが きらきら ひかったよ。'},{n:'くもの すべりだい',e:'🛝',tag:'asobi',t:'くもの すべりだいを しゅーっ！ したは そらだから どきどき！'}],
+ events:[{t:'したを みたら、 いままで いった ばしょが ぜんぶ みえる！ どうする？',c:[{n:'さがしてみる',e:'🔭',tag:'takara',t:'うみ、 やま、 もり… ぜんぶ みえた！ たくさん ぼうけんしたね。'},{n:'てを ふる',e:'👋',tag:'uta',t:'したの みんなに てを ふったよ。 「ありがとう！」'}]},
+   {t:'くもの パーティーが はじまる！ どうする？',c:[{n:'かんむりを かぶる',e:'👑',tag:'matsuri',t:'くもの かんむりを かぶって、 きょうの しゅやくに なったよ！'},{n:'みんなを あつめる',e:'📣',tag:'matsuri',t:'おともだちが つぎつぎ あつまって、 だいパーティーに なった！'}]},
+   {t:'そらに ほしが ふってきた！ どうする？',c:[{n:'うけとめる',e:'⭐',tag:'takara',t:'てのひらに ほしが ひとつ。 あたたかくて きらきら してる。'},{n:'ながめる',e:'🌌',tag:'nemuri',t:'くもの うえに ねころんで、 ほしの あめを ながめたよ。'}]},
+   {t:'くもの とびらが ひらいた。 なかは まっしろ！ どうする？',c:[{n:'はいって みる',e:'🚪',tag:'asobi',t:'なかは ふわふわの へや。 とびこんだら しずんで わらっちゃった。'},{n:'のぞくだけ',e:'👀',tag:'nemuri',t:'そっと のぞいたら、 しずかな くもの ベッドだった。'}]}],
+ goal:'くもの くにの みんなが みおくってくれた。 くもの くにの ぼうけん、'}
 ];
 
 /* どこでも おきる できごと */
@@ -514,11 +528,14 @@ const ICES=[
   {id:'vanilla',n:'バニラ',e:'🍦',p:5},{id:'ichigo',n:'いちご',e:'🍓',p:5},{id:'choco',n:'チョコ',e:'🍫',p:6},{id:'melon',n:'メロン',e:'🍈',p:6},
   {id:'soda',n:'ソーダ',e:'🧊',p:7},{id:'budo',n:'ぶどう',e:'🍇',p:7},{id:'mikan',n:'みかん',e:'🍊',p:8},{id:'banana',n:'バナナ',e:'🍌',p:8},
   {id:'matcha',n:'まっちゃ',e:'🍵',p:9},{id:'milk',n:'ミルク',e:'🥛',p:9},{id:'momo',n:'もも',e:'🍑',p:10},{id:'kinako',n:'きなこ',e:'🌾',p:10},
-  {id:'sakura',n:'さくら',e:'🌸',p:12},{id:'ramune',n:'ラムネ',e:'🫧',p:12},{id:'coffee',n:'コーヒー',e:'☕',p:14},{id:'rainbow',n:'レインボー',e:'🌈',p:16}
+  {id:'sakura',n:'さくら',e:'🌸',p:12},{id:'ramune',n:'ラムネ',e:'🫧',p:12},{id:'coffee',n:'コーヒー',e:'☕',p:14},{id:'rainbow',n:'レインボー',e:'🌈',p:16},
+  {id:'mango',n:'マンゴー',e:'🥭',p:17},{id:'mint',n:'ミント',e:'🌿',p:17},{id:'caramel',n:'キャラメル',e:'🍮',p:18},{id:'pine',n:'パイン',e:'🍍',p:18},
+  {id:'berry',n:'ベリー',e:'🫐',p:20},{id:'azuki',n:'あずき',e:'🫘',p:20},{id:'honey',n:'はちみつ',e:'🍯',p:22},{id:'hoshi',n:'ほしぞら',e:'✨',p:24}
 ];
-const UNLOCKS=[{need:0,stage:'umi'},{need:0,stage:'yama'},{need:2,stage:'mori'},{need:4,stage:'machi'},{need:6,stage:'uchu'},{need:8,stage:'okashi'},{need:10,stage:'kyoryu'},{need:12,stage:'yuki'},{need:13,stage:'noujou'},{need:14,stage:'circus'},{need:15,stage:'jungle'},{need:16,stage:'niji'}];
+const UNLOCKS=[{need:0,stage:'umi'},{need:0,stage:'yama'},{need:2,stage:'mori'},{need:4,stage:'machi'},{need:6,stage:'uchu'},{need:8,stage:'okashi'},{need:10,stage:'kyoryu'},{need:12,stage:'yuki'},{need:13,stage:'noujou'},{need:14,stage:'circus'},{need:15,stage:'jungle'},{need:16,stage:'niji'},{need:24,stage:'kumo'}];
 
 /* ずかんに のる キャラクター（ぜんぶ） */
+const SOCIAL_CHARS=()=>ALL_CHARS.filter(c=>c.l);
 const ALL_CHARS=(()=>{ const m=new Map();
   STAGES.forEach(s=>s.chars.forEach(c=>m.set(c.n,c)));
   GUESTS.forEach(c=>m.set(c.n,c));
@@ -571,6 +588,35 @@ function findObj(text){
 const FOODS=[['いちご','🍓'],['りんご','🍎'],['バナナ','🍌'],['みかん','🍊'],['ぶどう','🍇'],['すいか','🍉'],['もも','🍑'],
   ['おにぎり','🍙'],['パン','🍞'],['ケーキ','🍰'],['クッキー','🍪'],['ドーナツ','🍩'],['アイス','🍦'],['プリン','🍮'],
   ['ラーメン','🍜'],['カレー','🍛'],['たまご','🥚'],['とうもろこし','🌽'],['おだんご','🍡'],['ピザ','🍕'],['はちみつ','🍯'],['にんじん','🥕']];
+/* なぞなぞ（4さいむけ・こたえは えらぶだけ）*/
+const NAZO_POOL=[['りんご','🍎'],['バナナ','🍌'],['みかん','🍊'],['さかな','🐟'],['ライオン','🦁'],['ぞう','🐘'],['きりん','🦒'],['うさぎ','🐰'],['ほし','⭐'],['にじ','🌈'],['ふうせん','🎈'],['ねこ','🐱'],['いぬ','🐶'],['アイス','🍦'],['しんごう','🚦'],['ちょう','🦋'],['かに','🦀'],['かめ','🐢'],['かさ','☂️'],['くも','☁️'],['ぶた','🐷'],['ふね','⛵'],['つき','🌙'],['はな','🌸'],['たまご','🥚'],['でんしゃ','🚃']];
+const NAZOS=[
+  ['まるくて あかくて、 きに なる くだものは なあに？','りんご'],
+  ['なが〜くて きいろい くだものは なあに？','バナナ'],
+  ['まるくて オレンジいろ、 かわを むいて たべる くだものは なあに？','みかん'],
+  ['みずの なかを およいでいるのは なあに？','さかな'],
+  ['がおーっと ほえる、 たてがみの どうぶつは なあに？','ライオン'],
+  ['はなが とっても ながい どうぶつは なあに？','ぞう'],
+  ['くびが とっても ながい どうぶつは なあに？','きりん'],
+  ['みみが ながくて ぴょんぴょん とぶのは なあに？','うさぎ'],
+  ['よるの そらで ぴかぴか ひかるのは なあに？','ほし'],
+  ['あめの あとに そらに でる なないろの はしは なあに？','にじ'],
+  ['ふーっと ふくらんで、 そらに とんでいくのは なあに？','ふうせん'],
+  ['「にゃーん」と なくのは なあに？','ねこ'],
+  ['「わんわん」と なくのは なあに？','いぬ'],
+  ['つめたくて あまくて、 なめると とけちゃう おやつは なあに？','アイス'],
+  ['あかで とまって、 あおで すすむ。 みちに あるのは なあに？','しんごう'],
+  ['はねが ひらひら、 おはなの みつが すきなのは なあに？','ちょう'],
+  ['うみに いて、 はさみを もっているのは なあに？','かに'],
+  ['こうらを せなかに のせて、 ゆっくり あるくのは なあに？','かめ'],
+  ['あめの ひに ひらいて さすのは なあに？','かさ'],
+  ['そらに ふわふわ、 しろくて やわらかそうなのは なあに？','くも'],
+  ['「ぶーぶー」と なく、 はなが ぺったんこの どうぶつは なあに？','ぶた'],
+  ['うみの うえを ぷかぷか すすむのは なあに？','ふね'],
+  ['よるの そらで、 まるくなったり ほそくなったりするのは なあに？','つき'],
+  ['はっぱの うえから うまれる、 とりの あかちゃんが はいっているのは なあに？','たまご'],
+  ['がたんごとん、 せんろを はしるのは なあに？','でんしゃ']
+];
 const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
 
 /* =========================================================
@@ -781,7 +827,7 @@ function sTravel(){
 }
 
 function sMeet(){
-  const o=pick(A.dest.chars,2);
+  const o=pick(A.dest.anyChars?SOCIAL_CHARS():A.dest.chars,2);
   choice(A.dest.e,fill(A.dest.arrive)+' <br>だれに あいたい？',o.map(c=>({n:c.n,e:c.e,art:art(c.n,62),v:c})),c=>{ A.party.unshift(c); meetChar(c); Q.unshift(()=>tell(art(c.n,96),hon(c.n)+' '+c.l)); });
 }
 function sAct(){
@@ -791,7 +837,7 @@ function sAct(){
 function sMore(){
   if(A.party.length>=3) return run();
   const used=A.party.map(p=>p.n);
-  const pool=[...A.dest.chars,...GUESTS].filter(c=>!used.includes(c.n));
+  const pool=(A.dest.anyChars?SOCIAL_CHARS():[...A.dest.chars,...GUESTS]).filter(c=>!used.includes(c.n));
   const g=pool[rnd(pool.length)];
   choice(art(g.n,84),hon(g.n)+'が きたよ。 '+g.l+' どうする？',[{n:'いっしょに あそぶ',e:'🤝',v:true},{n:'ばいばい',e:'👋',v:false}],ok=>{
     if(ok){ join(g);
@@ -846,7 +892,7 @@ function choice(emoji,text,opts,onPick){
 }
 /* --- おはなし＋ミニゲーム（「つぎへ」だけの がめんは なし） --- */
 let drillBag=[];
-const DRILL_TYPES=['color','add','count','word','order','alpha','trace'];
+const DRILL_TYPES=['color','add','count','word','order','alpha','trace','nazo'];
 const CAN_TRACE=(()=>{try{const e=document.createElementNS('http://www.w3.org/2000/svg','path');
   return typeof e.getTotalLength==='function'&&typeof e.getPointAtLength==='function';}catch(e){return false}})();
 function nextDrillType(){ if(!drillBag.length) drillBag=shuffle(DRILL_TYPES); return drillBag.shift(); }
@@ -867,7 +913,7 @@ function tell(emoji,text,force){
     const ob=findObj(text);
     /* おはなしに ものが でてきたら、それに つなげられる ドリルに よせる */
     if(ob){
-      const ok=['word','alpha'];
+      const ok=['word','alpha','nazo'];
       if(ob.fl.includes('c')) ok.push('color');
       if(ob.fl.includes('m')) ok.push('count','add');
       if(/^[ぁ-ん]{2,3}$/.test(ob.w)) ok.push('order');
@@ -934,6 +980,13 @@ function makeDrill(type,ob){
       vis:`<div class="vis">「${ALPHA_YOMI[L]}」</div>`,ans:L,hint:ALPHA_YOMI[L],
       opts:shuffle([L,...others]).map(v=>({l:v,v:v,big:true}))};
   }
+  if(type==='nazo'){
+    const [q,ansW]=NAZOS[rnd(NAZOS.length)];
+    const ai=NAZO_POOL.findIndex(x=>x[0]===ansW);
+    const ans=NAZO_POOL[ai], others=pick(NAZO_POOL,2,ai);
+    return {q,read:q,vis:'<div class="vis">❓</div>',ans:ansW,hint:ansW,readOpts:true,
+      opts:shuffle([ans,...others]).map(o=>({l:`<span style="font-size:36px;line-height:1">${o[1]}</span><br><span style="font-size:15px">${o[0]}</span>`,say:o[0],v:o[0]}))};
+  }
   if(type==='food'){
     const who=A.party[rnd(A.party.length)];
     const i=rnd(FOODS.length),[fn,fe]=FOODS[i],others=pick(FOODS,2,i);
@@ -967,9 +1020,9 @@ function drillScene(emoji,text,type){
   app.innerHTML=header()+scene(emoji,{cls:'mini'})+`
     <div class="bubble mini"><div class="txt">${text}</div><button class="say">🔊</button></div>
     <div class="drill"><div class="qq">${d.q}</div>${d.vis||''}${slots}</div>
-    <div class="choices ${d.order?'kana':(three?'three':'two')}" ${d.order?`style="grid-template-columns:repeat(${d.opts.length},1fr)"`:''}>${d.opts.map((o,i)=>`<button class="btn ${COLORS[i%5]} ${d.order?'kchip':(o.big?'big':'')} ${!d.order&&three&&!o.big?'sm':''}" data-v="${o.v}" data-i="${i}">${o.l}</button>`).join('')}</div>`;
+    <div class="choices ${d.order?'kana':(three?'three':'two')}" ${d.order?`style="grid-template-columns:repeat(${d.opts.length},1fr)"`:''}>${d.opts.map((o,i)=>`<button class="btn ${type==='color'?'c0':COLORS[i%5]} ${d.order?'kchip':(o.big?'big':'')} ${!d.order&&three&&!o.big?'sm':''}" data-v="${o.v}" data-i="${i}">${o.l}</button>`).join('')}</div>`;
   bindCommon(clean(text)+' '+d.read);
-  if(d.readOpts) speak(clean(text),700,d.read,900,d.opts.map(o=>o.l).join('？ ')+'？');
+  if(d.readOpts) speak(clean(text),700,d.read,900,d.opts.map(o=>clean(o.say||o.l)).join('？ ')+'？');
   else speak(clean(text),700,d.read);
 
   let locked=false, pos=0;
