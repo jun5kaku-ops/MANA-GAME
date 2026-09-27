@@ -188,14 +188,17 @@ function startTrace(ch,opt){
     cur.setAttribute('d',strokes[si]);
     ink.setAttribute('d','');
     hint.innerHTML='';
-    const st=pts[0], nx=pts[Math.min(6,pts.length-1)];
-    let dx=st.x-nx.x, dy=st.y-nx.y; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L;
-    const bx=Math.min(93,Math.max(7,st.x+dx*13)), by=Math.min(93,Math.max(7,st.y+dy*13));
-    hint.appendChild(mk('circle',{cx:st.x,cy:st.y,r:4.4,class:'trstart'}));
-    hint.appendChild(mk('line',{x1:st.x,y1:st.y,x2:bx,y2:by,class:'trlead'}));
-    hint.appendChild(mk('circle',{cx:bx,cy:by,r:6.4,class:'trnumbg'}));
-    hint.appendChild(mk('text',{x:bx,y:by+2.4,class:'trnum','text-anchor':'middle'})).textContent=String(si+1);
+    /* かきはじめの ばしょ：ちいさな わっかだけ（もじに かぶらない）*/
+    const st=pts[0];
+    hint.appendChild(mk('circle',{cx:st.x,cy:st.y,r:5.6,class:'trring'}));
+    hint.appendChild(mk('circle',{cx:st.x,cy:st.y,r:2.4,class:'trstart'}));
+    /* なんかくめ かは、わくの ひだりうえに だす */
+    hint.appendChild(mk('rect',{x:5,y:5,width:strokes.length>9?30:26,height:15,rx:7,class:'trnumbg'}));
+    const t=mk('text',{x:5+(strokes.length>9?15:13),y:16.4,class:'trnum','text-anchor':'middle'});
+    t.textContent=(si+1)+'/'+strokes.length;
+    hint.appendChild(t);
   }
+
   function toSvg(ev){
     const r=svg.getBoundingClientRect();
     return {x:(ev.clientX-r.left)/r.width*109, y:(ev.clientY-r.top)/r.height*109};
@@ -207,9 +210,9 @@ function startTrace(ch,opt){
     ev.preventDefault();
     const p=toSvg(ev);
     if(dist(p,pts[0])>TR.startTol){
-      hint.querySelector('.trstart')?.classList.remove('pulse');
+      hint.querySelector('.trring')?.classList.remove('pulse');
       void hint.offsetWidth;
-      hint.querySelector('.trstart')?.classList.add('pulse');
+      hint.querySelector('.trring')?.classList.add('pulse');
       speak('ここから はじめてね');
       return;
     }
