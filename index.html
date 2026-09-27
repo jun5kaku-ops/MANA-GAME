@@ -219,6 +219,32 @@
   .kc.got:after{content:"⭐";position:absolute;top:-6px;right:-4px;font-size:15px}
   .kc.gap{background:none;border:0;box-shadow:none}
   .kc:active{transform:translateY(4px);box-shadow:0 1px 0 var(--shadow)}
+  /* オープニング／エンディング */
+  .story{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .scene{width:100%;max-width:420px;margin:0 auto;display:block;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--shadow);background:#fff}
+  .stxt{font-size:21px;font-weight:700;line-height:1.6;background:#fff;border:3px solid var(--ink);border-radius:22px;padding:16px 18px;box-shadow:0 5px 0 var(--shadow)}
+  .dots{display:flex;gap:7px;justify-content:center}
+  .dots i{width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--ink);display:block}
+  .dots i.on{background:var(--sun)}
+  /* ミニゲーム */
+  .mfield{position:relative;flex:1;min-height:0;margin:6px 0;border:3px solid var(--ink);border-radius:22px;overflow:hidden;
+    background:linear-gradient(180deg,#DDF3FF 0%,#F2FBE8 100%);box-shadow:0 5px 0 var(--shadow);touch-action:none}
+  .falling{position:absolute;transform:translate(-50%,-50%);font-size:38px;line-height:1;pointer-events:none}
+  .falling.got{animation:pop .3s ease-out;opacity:0}
+  .basket{position:absolute;bottom:3%;transform:translateX(-50%);font-size:52px;line-height:1;pointer-events:none;
+    filter:drop-shadow(0 3px 0 rgba(43,32,24,.25))}
+  .mgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:center;padding:6px 0}
+  .mcell{background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--shadow);
+    display:flex;align-items:center;justify-content:center;min-height:104px;padding:4px}
+  .mcell:active{transform:translateY(4px);box-shadow:0 1px 0 var(--shadow)}
+  .mcell.right{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+  .mcell.wrong{animation:wiggle .5s;opacity:.55}
+  .hgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:center;padding:6px 0}
+  .hcell{background:#FFFDF7;border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--shadow);
+    font-family:inherit;font-size:38px;font-weight:900;color:var(--ink);min-height:92px}
+  .hcell:active{transform:translateY(4px);box-shadow:0 1px 0 var(--shadow)}
+  .hcell.right{animation:pop .5s cubic-bezier(.2,1.6,.4,1);background:var(--leaf)}
+  .hcell.wrong{animation:wiggle .5s;opacity:.55}
   #ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:9}
   #ov.on{display:flex}
   #ov .word{font-size:64px;font-weight:900;color:#fff;text-shadow:0 0 0 8px var(--ink),0 8px 0 var(--shadow);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
@@ -263,6 +289,8 @@
 
 <script src="art.js"></script>
 <script src="kana.js"></script>
+<script src="bgm.js"></script>
+<script src="mini.js"></script>
 <script>
 /* =========================================================
    1. がくしゅう データ
@@ -623,6 +651,12 @@ const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
    4. ユーティリティ・ほぞん
    ========================================================= */
 const $=s=>document.querySelector(s);
+/* BGM：bgm.js が よみこめて いない ときも エラーに しない */
+const bgmPlay=k=>{ try{ if(typeof BGM!=='undefined') BGM.play(k); }catch(e){} };
+/* iPhone は さいしょに ゆびで さわるまで おとが だせない きまり */
+(function(){ const go=()=>{ try{ if(typeof BGM!=='undefined') BGM.unlock(); }catch(e){}
+    document.removeEventListener('pointerdown',go); document.removeEventListener('touchstart',go); };
+  document.addEventListener('pointerdown',go,{once:true}); document.addEventListener('touchstart',go,{once:true}); })();
 let curBG=null;
 function setBG(id){ if(curBG===id) return; curBG=id; const b=document.getElementById('bg'); if(b) b.innerHTML=bgArt(id); }
 const art=(name,size)=>(typeof charArt==='function'?charArt(name,size):'');
@@ -650,10 +684,13 @@ function yomi(t){
 }
 const hon=n=>/(さん|ちゃん|くん|ひめ|おうじ|はかせ|まじょ)$/.test(n)?n+'':n+'さん';
 
-let save={points:0,owned:[],chars:[],rate:2,pitch:2,voice:''};
+let save={points:0,owned:[],chars:[],rate:2,pitch:2,voice:'',bgm:2,seenOp:false,cleared:false,best:{},wrote:[]};
 try{ const s=JSON.parse(localStorage.getItem('ehon_save')||'null');
   if(s&&typeof s.points==='number') save=Object.assign(save,s); }catch(e){}
 if(!Array.isArray(save.chars)) save.chars=[];
+if(!Array.isArray(save.wrote)) save.wrote=[];
+if(typeof save.bgm!=='number') save.bgm=2;
+if(!save.best||typeof save.best!=='object') save.best={};
 function persist(){ try{ localStorage.setItem('ehon_save',JSON.stringify(save)) }catch(e){} }
 const unlockedStages=()=>UNLOCKS.filter(u=>save.owned.length>=u.need).map(u=>STAGES.find(s=>s.id===u.stage));
 function meetChar(c){ if(!save.chars.includes(c.n)){ save.chars.push(c.n); persist(); } }
@@ -685,7 +722,7 @@ if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=()=>jaVoices();
    5. タイトル・マップ
    ========================================================= */
 function showTitle(){
-  A=null; stopSpeak(); setBG('title');
+  A=null; stopSpeak(); setBG('title'); bgmPlay('title');
   app.innerHTML=`<div class="title">
     <div style="font-size:56px;line-height:1">📖</div>
     <svg class="logo" viewBox="0 0 340 72"><defs><linearGradient id="lgo" x1="0" y1="0" x2="0" y2="1">
@@ -698,14 +735,18 @@ function showTitle(){
       <button class="btn c4 sm" id="zukan"><b>📔</b>アイスずかん</button>
       <button class="btn c5 sm" id="czukan"><b>👥</b>おともだち</button>
     </div>
-    <button class="btn c3 sm" id="write" style="min-height:64px"><b style="font-size:30px">✏️</b>もじを かこう</button>
-    <button class="btn c1 sm" id="setting" style="min-height:58px"><b style="font-size:26px">⚙️</b>こえの せってい</button>
-    <p>⭐ ${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}　✏️ ${(save.wrote||[]).length}/92</p>
+    <div class="row">
+      <button class="btn c3 sm" id="write"><b>✏️</b>もじを かこう</button>
+      <button class="btn c1 sm" id="mini"><b>🎮</b>ミニゲーム</button>
+      <button class="btn c4 sm" id="setting"><b>⚙️</b>せってい</button>
+    </div>
+    <p>⭐ ${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}　✏️ ${(save.wrote||[]).length}/92${save.cleared?'　🌙 クリア':''}</p>
     <div class="parade">${(save.chars||[]).slice(-8).map(n=>`<i>${art(n,40)}</i>`).join('')}</div></div>`;
   $('#go').onclick=()=>{ speak('どこへ いこうかな？'); showMap(); };
   $('#shop').onclick=()=>{ speak('アイスやさんへ ようこそ'); showShop(); };
   $('#zukan').onclick=()=>{ speak('アイスずかん'); showZukan(); };
   $('#czukan').onclick=()=>{ speak('おともだち ずかん'); showCharZukan(); };
+  $('#mini').onclick=()=>showMiniHub();
   $('#write').onclick=()=>{
     if(typeof showKanaChart!=='function'||typeof KANA_PATHS==='undefined'){
       /* kana.js が よみこめて いない ときは りゆうを がめんに だす */
@@ -741,7 +782,7 @@ function mapDeco(){
   return items+friends.join('');
 }
 function showMap(){
-  setBG('title');
+  setBG('title'); bgmPlay('map');
   const un=unlockedStages();
   const pts=UNLOCKS.map(u=>STAGES.find(s=>s.id===u.stage));
   const path=pts.map((s,i)=>(i?'L':'M')+s.x+' '+s.y).join(' ');
@@ -796,7 +837,7 @@ const addTag=t=>{ if(t) A.tags.push(t); };
 const join=c=>{ if(!A.party.find(p=>p.n===c.n)) A.party.push(c); meetChar(c); };
 
 function startAdventure(stage){
-  setBG(stage.id);
+  setBG(stage.id); bgmPlay(stage.id==='kumo'?'kumo':'adventure');
   A={dest:stage,trans:null,party:[],tags:[],stars:0,acts:0};
   drillBag=[];
   Q=[sTrans,sTransTell,sTravel,sMeet,sAct,sMore,sEventsSetup,sEnding];
@@ -1046,7 +1087,10 @@ function drillScene(emoji,text,type){
 }
 function goal(){
   const bonus=2,got=A.stars+bonus;
-  save.points+=got; persist();
+  save.points+=got;
+  const firstClear=(A.dest.id==='kumo');
+  if(firstClear&&!save.cleared) save.cleared=true;
+  persist();
   const names=A.party.map(p=>hon(p.n)).join('・');
   const crew=A.party.map(p=>art(p.n,56)).join('');
   const fin=A.fin, text=fill('{with} ゴール！');
@@ -1057,14 +1101,14 @@ function goal(){
     bindCommon(clean(text)); $('#toShop').onclick=showShop; $('#again').onclick=showMap;
     speak(clean(text),700,'ほしが '+got+'ポイント もらえたよ！');
   };
-  playFinale(fin,got,crew,show);
+  playFinale(fin,got,crew,()=>{ if(firstClear) showEnding(); else show(); });
 }
 
 /* =========================================================
    8. アイスやさん・ずかん・せってい
    ========================================================= */
 function showShop(){
-  A=null; stopSpeak(); setBG('title');
+  A=null; stopSpeak(); setBG('title'); bgmPlay('title');
   app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">⭐ <span>${save.points}</span></div></div>
     <div class="h2">🍦 アイスやさん</div><div class="list">${ICES.map((ic,i)=>{ const own=save.owned.includes(ic.id);
       return `<div class="item"><div class="em">${ic.e}</div><div class="nm">${ic.n}<small>⭐ ${ic.p} ポイント</small></div>${own?`<div class="btn c3" style="min-height:52px;font-size:17px">もってる</div>`:`<button class="btn ${COLORS[i%5]}" data-id="${ic.id}" ${save.points>=ic.p?'':'disabled'}>こうかん</button>`}</div>`;}).join('')}</div>`;
@@ -1106,24 +1150,97 @@ function showSetting(){
   A=null;
   const vs=jaVoices();
   app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">⚙️</div></div>
-    <div class="h2">こえの せってい</div>
+    <div class="h2">せってい</div>
+    <div class="lbl">BGM（おんがく）</div>
+    <div class="seg" id="bgm" style="grid-template-columns:repeat(4,1fr)">${['なし','ちいさめ','ふつう','おおきめ'].map((l,i)=>`<button data-v="${i}" class="${save.bgm===i?'on':''}" style="font-size:16px">${l}</button>`).join('')}</div>
     <div class="lbl">はなす はやさ</div>
     <div class="seg" id="rate">${['ゆっくり','ふつう','はやい'].map((l,i)=>`<button data-v="${i+1}" class="${save.rate===i+1?'on':''}">${l}</button>`).join('')}</div>
     <div class="lbl">こえの たかさ</div>
     <div class="seg" id="pitch">${['ひくい','ふつう','たかい'].map((l,i)=>`<button data-v="${i+1}" class="${save.pitch===i+1?'on':''}">${l}</button>`).join('')}</div>
     ${vs.length>1?`<div class="lbl">こえの しゅるい</div><div class="list" style="max-height:180px">${vs.map(v=>`<div class="item"><div class="nm" style="font-size:18px">${v.name}</div><button class="btn ${save.voice===v.name?'c3':'c4'}" data-voice="${v.name}">${save.voice===v.name?'えらんでる':'えらぶ'}</button></div>`).join('')}</div>`:''}
     <div class="note">きいて ためせるよ 🔊</div>
-    <button class="btn c1" id="test" style="margin-top:10px">こえを きいて みる</button>`;
+    <button class="btn c1" id="test" style="margin-top:10px">こえを きいて みる</button>
+    <button class="btn c5" id="opAgain" style="margin-top:10px"><b style="font-size:26px">📖</b>はじまりの おはなしを みる</button>`;
   $('#homeBtn').onclick=showTitle;
   app.querySelectorAll('#rate button').forEach(b=>b.onclick=()=>{ save.rate=+b.dataset.v; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   app.querySelectorAll('#pitch button').forEach(b=>b.onclick=()=>{ save.pitch=+b.dataset.v; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   app.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{ save.voice=b.dataset.voice; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   $('#test').onclick=()=>speak('うみに いくよ。',900,'くるま？ あるく？');
+  $('#opAgain').onclick=()=>showOpening(showSetting);
+  app.querySelectorAll('#bgm button').forEach(b=>b.onclick=()=>{
+    save.bgm=+b.dataset.v; persist();
+    if(typeof BGM!=='undefined'){ BGM.unlock(); BGM.refresh(); }
+    showSetting();
+  });
 }
 
 /* =========================================================
    9. えんしゅつ
    ========================================================= */
+
+/* =========================================================
+   オープニング と エンディング（おはなしの がめん）
+   ========================================================= */
+const OPENING=[
+  'あるひ、 おへやで えほんを ひらいたら…',
+  'ページから ひかりが あふれて、 えほんの くにに すいこまれた！',
+  'この くにでは、 べんきょうしたり おともだちを あつめると<br>アイスと こうかんできる ポイントが もらえるんだって。',
+  'たくさん おともだちを つくって、 べんきょうしながら<br>くもの くにを クリアして、 おうちに かえろう！'
+];
+function showOpening(back){
+  A=null; stopSpeak(); setBG('title');
+  if(typeof BGM!=='undefined') BGM.play('title');
+  let i=0;
+  const draw=()=>{
+    app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button>
+        <div class="party" style="font-size:19px;font-weight:900">はじまりの おはなし</div><div class="pts">📖</div></div>
+      <div class="story">
+        ${typeof openingArt==='function'?openingArt(i):''}
+        <div class="stxt">${OPENING[i]}</div>
+        <div class="dots">${OPENING.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+      </div>
+      <div class="choices ${i?'two':''}">
+        ${i?'<button class="btn c1 sm" id="prev"><b>◀</b>まえ</button>':''}
+        <button class="btn c3" id="nx"><b>${i<OPENING.length-1?'▶':'🗺️'}</b>${i<OPENING.length-1?'つぎへ':'ぼうけんに いく'}</button>
+      </div>`;
+    $('#homeBtn').onclick=()=>{ save.seenOp=true; persist(); (back||showTitle)(); };
+    const p=$('#prev'); if(p) p.onclick=()=>{ i--; draw(); };
+    $('#nx').onclick=()=>{
+      if(i<OPENING.length-1){ i++; draw(); }
+      else{ save.seenOp=true; persist(); (back||showTitle)(); }
+    };
+    speak(clean(OPENING[i]));
+  };
+  draw();
+}
+
+/* くもの くにを クリアしたら ながれる エンディング */
+const ENDING_TXT=[
+  'くもの くにの みんなに 「ありがとう」を いって、<br>えほんの ページを とじたよ。',
+  'きが つくと、 まくらもとに えほんが おいてあった。<br>おうちの ベッドで すやすや ねむる おんなのこ。',
+  'ゆめの なかで、 きょうも えほんの くにの みんなが てを ふっている。<br>また あした、 あそびに いこうね。 おしまい！'
+];
+function showEnding(){
+  A=null; stopSpeak(); setBG('title');
+  if(typeof BGM!=='undefined') BGM.play('ending');
+  let i=0;
+  const draw=()=>{
+    app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button>
+        <div class="party" style="font-size:19px;font-weight:900">エンディング</div><div class="pts">🌙</div></div>
+      <div class="story">
+        ${typeof endingArt==='function'?endingArt():''}
+        <div class="stxt">${ENDING_TXT[i]}</div>
+        <div class="dots">${ENDING_TXT.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+      </div>
+      <div class="choices"><button class="btn c3" id="nx"><b>${i<ENDING_TXT.length-1?'▶':'🏠'}</b>${i<ENDING_TXT.length-1?'つぎへ':'おしまい'}</button></div>`;
+    $('#homeBtn').onclick=showTitle;
+    $('#nx').onclick=()=>{ if(i<ENDING_TXT.length-1){ i++; draw(); } else showTitle(); };
+    speak(clean(ENDING_TXT[i]));
+    if(i===ENDING_TXT.length-1) burst(24);
+  };
+  draw();
+}
+
 function showWord(w){ const ov=$('#ov'); $('#ovw').textContent=w; ov.classList.add('on'); setTimeout(()=>ov.classList.remove('on'),1000); }
 function burst(n){ const em=['🎉','⭐','🌟','✨','🎈','💖'];
   for(let i=0;i<n;i++){ const s=document.createElement('div'); s.className='conf'; s.textContent=em[rnd(em.length)];
@@ -1171,7 +1288,7 @@ function playFinale(fin,pts,crew,onDone){
   box.onclick=close;
   finTimer=setTimeout(close,ms);
 }
-showTitle();
+if(!save.seenOp) showOpening(); else showTitle();
 </script>
 </body>
 </html>
