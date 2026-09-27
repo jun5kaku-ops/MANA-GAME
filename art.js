@@ -536,3 +536,106 @@ function mapArt(){
     <rect x="88" y="52" width="4" height="5" rx="1" fill="#3B2E5A"/>
   </svg>`;
 }
+
+/* =========================================================
+   おんなのこ と オープニング／エンディングの え
+   ========================================================= */
+function girlFig(pose){
+  const skin='#FFD9B8', hair='#5B3A26', dress='#FF8FAB';
+  const head=`<circle cx="0" cy="-26" r="14" fill="${skin}" ${ln(2.6)}/>`
+    +`<path d="M-15 -30 Q-14 -47 0 -47 Q14 -47 15 -30 Q8 -39 0 -37 Q-8 -39 -15 -30 Z" fill="${hair}" ${ln(2.4)}/>`
+    +`<circle cx="-16" cy="-27" r="6" fill="${hair}" ${ln(2.2)}/><circle cx="16" cy="-27" r="6" fill="${hair}" ${ln(2.2)}/>`
+    +(pose==='sleep'
+      ? `<path d="M-8 -25 Q-5 -22 -2 -25" fill="none" ${ln(2)}/><path d="M2 -25 Q5 -22 8 -25" fill="none" ${ln(2)}/>`
+      : `<circle cx="-5" cy="-25" r="2.8" fill="${SK}"/><circle cx="5" cy="-25" r="2.8" fill="${SK}"/>`)
+    +`<path d="M-4 -18 Q0 -14 4 -18" fill="none" ${ln(2)}/>`
+    +`<ellipse cx="-9.5" cy="-19" rx="3.4" ry="2" fill="#FF8FAB" opacity=".55"/><ellipse cx="9.5" cy="-19" rx="3.4" ry="2" fill="#FF8FAB" opacity=".55"/>`;
+  if(pose==='sleep'){
+    return `<g><path d="M12 6 L46 6 L46 26 L12 26 Z" fill="${dress}" ${ln(2.6)}/>`
+      +`<g transform="rotate(-90)">${head}</g></g>`;
+  }
+  if(pose==='fly'){
+    return `<g><path d="M-12 -12 L12 -12 L21 22 L-21 22 Z" fill="${dress}" ${ln(2.6)}/>`
+      +`<path d="M-11 -7 L-30 -20 M11 -7 L30 -18" fill="none" stroke="${skin}" stroke-width="6" stroke-linecap="round"/>`
+      +`<path d="M-9 22 L-16 40 M9 22 L17 38" fill="none" stroke="${skin}" stroke-width="6" stroke-linecap="round"/>`
+      +head+`</g>`;
+  }
+  return `<g><path d="M-12 -12 L12 -12 L18 20 L-18 20 Z" fill="${dress}" ${ln(2.6)}/>`
+    +`<path d="M-11 -7 L-22 8 M11 -7 L22 8" fill="none" stroke="${skin}" stroke-width="6" stroke-linecap="round"/>`
+    +`<path d="M-7 20 L-7 33 M7 20 L7 33" fill="none" stroke="${skin}" stroke-width="6" stroke-linecap="round"/>`
+    +`<path d="M-13 34 L-1 34 M1 34 L13 34" fill="none" ${ln(4)}/>`
+    +head+`</g>`;
+}
+function bookFig(open){
+  return open
+    ? `<g><path d="M-32 13 L-2 4 L-2 -13 L-32 -4 Z" fill="#FFF8E7" ${ln(2.6)}/><path d="M32 13 L2 4 L2 -13 L32 -4 Z" fill="#FFF8E7" ${ln(2.6)}/>`
+      +`<path d="M-2 4 L2 4 L2 -13 L-2 -13 Z" fill="#E4572E" ${ln(2)}/>`
+      +`<path d="M-26 2 L-8 -2 M-26 8 L-8 4 M8 -2 L26 2 M8 4 L26 8" fill="none" stroke="#C9BDB6" stroke-width="1.6"/></g>`
+    : `<g><rect x="-22" y="-15" width="44" height="31" rx="3" fill="#E4572E" ${ln(2.6)}/>`
+      +`<rect x="-18" y="-11" width="36" height="23" rx="2" fill="#FFF8E7"/>`
+      +`<path d="M-2 -4 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4 z" fill="#FFD22E" ${ln(1.6)}/></g>`;
+}
+const sceneSVG=inner=>`<svg class="scene" viewBox="0 0 200 130" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+
+/* オープニング（4まい）*/
+function openingArt(i){
+  if(i===0) return sceneSVG(
+    `<rect width="200" height="130" fill="#FFF3E2"/><rect y="98" width="200" height="32" fill="#C08A54"/>
+     <rect x="16" y="26" width="46" height="42" rx="4" fill="#BFE9FF" ${ln(2.6)}/><path d="M39 26 L39 68 M16 47 L62 47" ${ln(2)}/>
+     <ellipse cx="118" cy="112" rx="50" ry="8" fill="#8B5E3C" opacity=".35"/>
+     <g transform="translate(118,78)">${girlFig('stand')}</g>
+     <g transform="translate(118,88) scale(0.66)">${bookFig(false)}</g>
+     <text x="168" y="44" font-size="18" text-anchor="middle">✨</text>`);
+  if(i===1) return sceneSVG(
+    `<rect width="200" height="130" fill="#241748"/>
+     ${[...Array(16)].map((_,k)=>`<circle cx="${(k*41)%192+5}" cy="${(k*29)%118+6}" r="${1+(k%3)*0.7}" fill="#fff" opacity=".85"/>`).join('')}
+     <g transform="translate(100,104)">${bookFig(true)}</g>
+     <path d="M100 92 L34 2 L166 2 Z" fill="#FFD86B" opacity=".4"/>
+     <path d="M100 92 L72 6 L128 6 Z" fill="#FFF3B0" opacity=".55"/>
+     <g transform="translate(100,50) rotate(12)">${girlFig('fly')}</g>
+     ${[26,58,146,176].map((x,k)=>`<path d="M${x} ${18+k*11} l1.8 4.2 4.2 1.8 -4.2 1.8 -1.8 4.2 -1.8 -4.2 -4.2 -1.8 4.2 -1.8 z" fill="#FFD22E"/>`).join('')}`);
+  if(i===2) return sceneSVG(
+    `<rect width="200" height="130" fill="#BFE9FF"/>
+     ${['#E4572E','#FF9F1C','#FFD22E','#6FBF5A','#4FA3E8','#7E5BCF'].map((c,k)=>`<path d="M-10 92 Q100 ${4+k*9} 210 92" fill="none" stroke="${c}" stroke-width="6"/>`).join('')}
+     <path d="M0 80 Q50 66 100 80 T200 76 L200 130 L0 130 Z" fill="#A8D96A"/>
+     <g transform="translate(42,106) scale(0.66)">${girlFig('stand')}</g>
+     <text x="92" y="100" font-size="26" text-anchor="middle">🐰</text>
+     <text x="126" y="104" font-size="26" text-anchor="middle">🐻</text>
+     <text x="160" y="98" font-size="26" text-anchor="middle">🦊</text>
+     <text x="174" y="46" font-size="24" text-anchor="middle">🍦</text>
+     <text x="22" y="34" font-size="20" text-anchor="middle">⭐</text>
+     <text x="60" y="26" font-size="17" text-anchor="middle">✏️</text>`);
+  return sceneSVG(
+    `<rect width="200" height="130" fill="#8FD6FF"/>
+     ${[[24,26,26],[84,16,32],[152,32,26],[110,58,22],[44,64,20]].map(c=>`<ellipse cx="${c[0]}" cy="${c[1]}" rx="${c[2]}" ry="${c[2]*0.5}" fill="#fff"/>`).join('')}
+     <path d="M0 94 Q60 80 120 94 T220 90 L220 130 L0 130 Z" fill="#F2FAFF"/>
+     <g transform="translate(52,110) scale(0.66)">${girlFig('stand')}</g>
+     <text x="104" y="112" font-size="24" text-anchor="middle">🐻</text>
+     <text x="136" y="112" font-size="24" text-anchor="middle">🐰</text>
+     <g transform="translate(176,86)"><rect x="-15" y="-10" width="30" height="22" rx="2" fill="#E8C24B" ${ln(2.4)}/>
+       <path d="M-19 -10 L0 -25 L19 -10 Z" fill="#C0392B" ${ln(2.4)}/><rect x="-4" y="0" width="8" height="12" fill="#8B5E3C"/></g>
+     <path d="M158 100 Q168 96 176 98" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 4"/>`);
+}
+/* エンディング：おうちで すやすや */
+function endingArt(){
+  return sceneSVG(
+    `<rect width="200" height="130" fill="#2B2A5A"/>
+     <rect y="102" width="200" height="28" fill="#6B4A2E"/>
+     <rect x="118" y="12" width="48" height="42" rx="4" fill="#0E1030" ${ln(2.6)}/>
+     <path d="M142 12 L142 54 M118 33 L166 33" ${ln(2)}/>
+     <circle cx="154" cy="24" r="7" fill="#FFF3B0"/>
+     ${[[126,22],[132,44],[158,46],[136,18],[148,40]].map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="1.4" fill="#fff" opacity=".9"/>`).join('')}
+     <rect x="62" y="62" width="126" height="42" rx="6" fill="#F6E6D8" ${ln(2.8)}/>
+     <rect x="62" y="52" width="24" height="52" rx="6" fill="#E8D3C0" ${ln(2.6)}/>
+     <ellipse cx="102" cy="68" rx="20" ry="12" fill="#FFFFFF" ${ln(2.4)}/>
+     <g transform="translate(122,68) scale(0.78)">${girlFig('sleep')}</g>
+     <path d="M106 71 L188 71 Q190 92 186 99 L106 99 Q102 85 106 71 Z" fill="#BFE9FF" ${ln(2.6)}/>
+     <path d="M108 80 Q148 76 188 80" fill="none" ${ln(2)} opacity=".5"/>
+     <text x="86" y="52" font-size="12" fill="#fff" opacity=".85">z</text>
+     <text x="96" y="40" font-size="15" fill="#fff" opacity=".85">z</text>
+     <text x="110" y="28" font-size="18" fill="#fff" opacity=".85">z</text>
+     <rect x="14" y="76" width="36" height="28" rx="3" fill="#A9714B" ${ln(2.6)}/>
+     <path d="M14 88 L50 88" fill="none" ${ln(2)} opacity=".6"/>
+     <g transform="translate(32,70) scale(0.62)">${bookFig(false)}</g>
+     <text x="32" y="122" font-size="14" text-anchor="middle">🧸</text>`);
+}
