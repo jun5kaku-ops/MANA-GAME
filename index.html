@@ -14,8 +14,14 @@
   :root{--paper:#FFF8E7;--sky:#DDF3FF;--ink:#3B2F2F;--soft:#8A7B74;--sun:#FFD86B;--berry:#FFA3C1;--leaf:#A6E3A1;--pond:#9BD4FF;--grape:#CDB4F5;--bubble:#FFFFFF;--shadow:rgba(70,40,20,.18)}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
-  body{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Rounded Mplus 1c","BIZ UDPGothic",sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--sky) 0%,var(--paper) 55%);display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  #app{flex:1;display:flex;flex-direction:column;max-width:520px;width:100%;margin:0 auto;padding:10px 14px 14px;overflow:hidden}
+  body{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Rounded Mplus 1c","BIZ UDPGothic",sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--sky) 0%,var(--paper) 55%);display:flex;flex-direction:column;height:100%;height:100dvh;height:100svh;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+  #app{flex:1;min-height:0;display:flex;flex-direction:column;max-width:520px;width:100%;margin:0 auto;
+    padding:10px 14px calc(18px + env(safe-area-inset-bottom));
+    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
+  #app::-webkit-scrollbar{display:none}
+  /* スクロールできる がめんでは、なかみが つぶれないように さいていの たかさを もたせる */
+  .title,.story{flex:0 0 auto;margin:auto 0}
+  .list,.grid,.kchart{flex:0 1 auto}
 
   .top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
   .icon{font-size:26px;background:#fff;border:0;border-radius:50%;width:44px;height:44px;box-shadow:0 3px 0 var(--shadow)}
@@ -50,6 +56,10 @@
   .btn.c0{background:#FFFDF7}
   .btn.c1{background:var(--sun)}.btn.c2{background:var(--berry)}.btn.c3{background:var(--leaf)}.btn.c4{background:var(--pond)}.btn.c5{background:var(--grape)}
   .btn.big{font-size:42px}
+  .btn.locked{background:#EAE3D9;color:#A2968B;border-color:#BEB2A6;box-shadow:0 4px 0 rgba(43,32,24,.10)}
+  .btn.locked b{opacity:.75}
+  .item.locked{background:#F1EBE3;opacity:.72}
+  .item.locked .nm{color:#8A7B74}
   .btn.sm{font-size:19px;min-height:72px;padding:10px 6px}.btn.sm b{font-size:38px}
   .choices.kana{gap:8px}
   .btn.kchip{min-height:58px;padding:6px 2px;font-size:30px;border-radius:18px;box-shadow:0 5px 0 var(--shadow)}
@@ -93,7 +103,7 @@
   .node.lock .lb{color:var(--soft)}
   @media (max-height:700px){.node .bub{width:54px;height:54px;font-size:30px}.node .lb{font-size:12px}}
 
-  .list{flex:1;overflow-y:auto;display:grid;gap:10px;padding:4px 0}
+  .list{flex:1;overflow-y:auto;display:grid;gap:10px;padding:4px 0;align-content:start;grid-auto-rows:max-content}
   .item{display:flex;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:8px 12px;box-shadow:0 4px 0 var(--shadow)}
   .item .em{font-size:40px;line-height:1;width:52px;text-align:center}
   .item .nm{flex:1;font-size:21px;font-weight:900}
@@ -173,6 +183,12 @@
   .parade{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;margin-top:2px}
   .parade i{display:block;animation:bob 1.8s ease-in-out infinite}
   .parade i:nth-child(2n){animation-delay:.3s}.parade i:nth-child(3n){animation-delay:.6s}
+  /* まだ したに つづくよ、の めじるし */
+  #more{position:fixed;left:0;right:0;bottom:0;height:52px;z-index:19;pointer-events:none;display:none;
+    align-items:flex-end;justify-content:center;padding-bottom:calc(4px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg,rgba(255,248,231,.92),rgba(255,248,231,0))}
+  #more.on{display:flex}
+  #more span{font-size:22px;font-weight:900;color:var(--ink);opacity:.7;animation:arrDown 1.6s ease-in-out infinite}
   #scan{position:fixed;inset:0;z-index:20;pointer-events:none;
     background:repeating-linear-gradient(180deg,rgba(43,32,24,.045) 0 1px,transparent 1px 3px),
       radial-gradient(rgba(43,32,24,.05) 1px,transparent 1.4px) 0 0/6px 6px;mix-blend-mode:multiply}
@@ -204,13 +220,13 @@
   .trdone{stroke:#6FBF5A;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .trink{stroke:#FF8FAB;stroke-width:8;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.95}
   .trmeas{fill:none;stroke:none}
-  .trstart{fill:#FF6F91;stroke:var(--ink);stroke-width:1.4}
-  .trstart.pulse{animation:tpulse .6s ease-out 2}
-  .trlead{stroke:var(--ink);stroke-width:1.1;opacity:.5}
-  .trnumbg{fill:#FF8FAB;stroke:var(--ink);stroke-width:1.6}
-  .trnum{font-size:7.4px;font-weight:900;fill:#fff}
+  .trstart{fill:#FF6F91}
+  .trring{fill:none;stroke:#FF6F91;stroke-width:2.2}
+  .trring.pulse{animation:tpulse2 .6s ease-out 2}
+  .trnumbg{fill:#FFD86B;stroke:var(--ink);stroke-width:1.6}
+  .trnum{font-size:8.6px;font-weight:900;fill:var(--ink)}
   .trdot{fill:#FFD22E;stroke:var(--ink);stroke-width:1.6}
-  @keyframes tpulse{0%{r:4.4}50%{r:10}100%{r:4.4}}
+  @keyframes tpulse2{0%{r:5.6;opacity:1}60%{r:12;opacity:.3}100%{r:5.6;opacity:1}}
   /* 50おんひょう */
   .kchart{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 2px;align-content:start}
   .kc{font-family:inherit;font-size:24px;font-weight:900;color:var(--ink);background:#fff;border:3px solid var(--ink);
@@ -282,6 +298,7 @@
 <body>
 <div id="bg"></div>
 <div id="app"></div>
+<div id="more"><span>▼</span></div>
 <div id="scan"></div>
 <div id="ov"><div class="word" id="ovw"></div></div>
 <canvas id="fw"></canvas>
@@ -289,8 +306,386 @@
 
 <script src="art.js"></script>
 <script src="kana.js"></script>
-<script src="bgm.js"></script>
-<script src="mini.js"></script>
+<script>
+/* =========================================================
+   bgm.js — BGM（おんがく）
+   おんがくファイルは つかわず、ブラウザの Web Audio API で
+   その場で おとを つくる（ファイルサイズ ゼロ・よみこみ まちなし）
+   ゆかいで、うるさすぎない おとを めざした つくり：
+   ・サイン波＋三角波のみ（とがった おとを つかわない）
+   ・ローパスフィルターで たかい おとを やわらげる
+   ・おとの たちあがり／きえぎわを なめらかに する
+   ========================================================= */
+
+/* おんかい（ペンタトニック中心）と おと の たかさ */
+const MIDI=m=>440*Math.pow(2,(m-69)/12);
+
+/* きょくの データ
+   bpm   ： はやさ
+   chords： 1しょうせつごとの わおん（MIDIばんごう）
+   mel   ： [おとのたかさ, ながさ(はくすう)]  0 は やすみ
+   wave  ： メロディの おとしょく
+   feel  ： 'bounce'（はねる）/'calm'（しずか）             */
+const BGM_TRACKS={
+  title:{ bpm:112, wave:'triangle', feel:'bounce',
+    chords:[[60,64,67],[57,60,64],[65,69,72],[67,71,74]],
+    mel:[[72,1],[74,.5],[76,.5],[79,1],[76,1],  [72,1],[69,.5],[72,.5],[74,2],
+         [77,1],[76,.5],[74,.5],[72,1],[74,1],  [79,1.5],[76,.5],[72,2]] },
+  map:{ bpm:96, wave:'sine', feel:'calm',
+    chords:[[60,64,67],[62,65,69],[57,60,64],[65,69,72]],
+    mel:[[76,1.5],[74,.5],[72,2],  [74,1],[76,1],[79,2],
+         [76,1.5],[72,.5],[69,2],  [72,1],[74,1],[72,2]] },
+  adventure:{ bpm:126, wave:'triangle', feel:'bounce',
+    chords:[[60,64,67],[65,69,72],[62,65,69],[67,71,74]],
+    mel:[[72,.5],[76,.5],[79,1],[76,.5],[72,.5],[74,1],
+         [77,.5],[81,.5],[79,1],[76,.5],[72,.5],[74,1],
+         [74,.5],[77,.5],[81,1],[79,.5],[76,.5],[74,1],
+         [79,1],[76,.5],[74,.5],[72,2]] },
+  kumo:{ bpm:84, wave:'sine', feel:'calm',
+    chords:[[65,69,72],[60,64,67],[62,65,69],[67,71,74]],
+    mel:[[81,2],[79,1],[76,1],  [77,2],[72,2],
+         [74,1],[77,1],[79,2],  [76,2],[72,2]] },
+  ending:{ bpm:72, wave:'sine', feel:'calm',
+    chords:[[60,64,67],[57,60,64],[65,69,72],[55,59,62]],
+    mel:[[72,2],[71,1],[69,1],  [67,2],[64,2],
+         [65,1],[67,1],[69,2],  [67,2],[60,2]] },
+  mini:{ bpm:134, wave:'triangle', feel:'bounce',
+    chords:[[60,64,67],[62,65,69],[65,69,72],[67,71,74]],
+    mel:[[72,.5],[74,.5],[76,.5],[77,.5],[79,1],[77,1],
+         [76,.5],[74,.5],[72,.5],[74,.5],[76,1],[72,1],
+         [77,.5],[79,.5],[81,.5],[79,.5],[77,1],[76,1],
+         [74,.5],[76,.5],[79,1],[76,1],[72,1]] }
+};
+
+/* おおきさ（3だんかい）。0 は おと なし */
+const BGM_VOLS=[0, 0.10, 0.18, 0.28];
+
+const BGM=(()=>{
+  let ctx=null, master=null, filt=null;
+  let timer=null, key=null, wanted=null, started=false;
+  let bar=0, nextT=0;
+
+  const vol=()=>{
+    const v=(typeof save!=='undefined' && typeof save.bgm==='number')?save.bgm:2;
+    return BGM_VOLS[Math.max(0,Math.min(3,v))];
+  };
+
+  function ensure(){
+    if(ctx) return true;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return false;
+    try{
+      ctx=new AC();
+      filt=ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=2600; filt.Q.value=0.4;
+      master=ctx.createGain(); master.gain.value=0;
+      filt.connect(master); master.connect(ctx.destination);
+    }catch(e){ ctx=null; return false; }
+    return true;
+  }
+
+  /* ひとつの おとを ならす */
+  function tone(freq,t,dur,type,peak,detune){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.value=freq;
+    if(detune) o.detune.value=detune;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(Math.max(peak,0.0002),t+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(filt);
+    o.start(t); o.stop(t+dur+0.05);
+  }
+
+  /* 1しょうせつぶん を よやくする */
+  function scheduleBar(tr,t0,spb){
+    const ch=tr.chords[bar%tr.chords.length];
+    /* わおん（やわらかい パッド）*/
+    ch.forEach((m,i)=>tone(MIDI(m),t0,spb*3.6,'sine',0.045,i?4:0));
+    /* ベース */
+    const root=ch[0]-24;
+    tone(MIDI(root),t0,spb*1.5,'sine',0.085);
+    tone(MIDI(root),t0+spb*2,spb*1.5,'sine',0.07);
+    if(tr.feel==='bounce'){
+      tone(MIDI(ch[1]-12),t0+spb*1,spb*0.5,'sine',0.05);
+      tone(MIDI(ch[1]-12),t0+spb*3,spb*0.5,'sine',0.05);
+    }
+    /* メロディ（きょく ぜんたいを ながれで ならす）*/
+    let beat=0, idx=barMelIndex(tr,bar);
+    while(beat<4 && idx<tr.mel.length){
+      const [m,d]=tr.mel[idx];
+      if(m) tone(MIDI(m),t0+beat*spb,spb*d*0.92,tr.wave,0.075);
+      beat+=d; idx++;
+    }
+  }
+  /* しょうせつの あたまが メロディの どこか を もとめる */
+  function barMelIndex(tr,b){
+    const total=tr.mel.reduce((a,x)=>a+x[1],0);
+    const bars=Math.max(1,Math.round(total/4));
+    let want=(b%bars)*4, acc=0;
+    for(let i=0;i<tr.mel.length;i++){
+      if(acc>=want) return i;
+      acc+=tr.mel[i][1];
+    }
+    return 0;
+  }
+
+  function loop(){
+    if(!ctx||!key||ctx.state!=='running') return;
+    const tr=BGM_TRACKS[key]; if(!tr) return;
+    const spb=60/tr.bpm;
+    while(nextT < ctx.currentTime+1.2){
+      if(nextT < ctx.currentTime) nextT=ctx.currentTime+0.06;
+      scheduleBar(tr,nextT,spb);
+      nextT+=spb*4; bar++;
+    }
+  }
+
+  function fade(to,sec){
+    if(!master||!ctx) return;
+    const now=ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(Math.max(master.gain.value,0.0001),now);
+    master.gain.linearRampToValueAtTime(to,now+sec);
+  }
+
+  return {
+    /* さいしょの タップで おとを つかえるように する */
+    unlock(){
+      const self=this;
+      if(!ensure()) return;
+      started=true;
+      const go=()=>{ if(wanted) self.play(wanted); };
+      /* iPhone は resume が おわってから でないと おとが ずれる */
+      if(ctx.state==='suspended') ctx.resume().then(go).catch(go);
+      else go();
+    },
+    /* きょくを かえる（おなじ きょくなら なにも しない）*/
+    play(k){
+      wanted=k;
+      if(!started||!ensure()) return;
+      if(ctx.state==='suspended') ctx.resume().catch(()=>{});
+      if(key===k){ fade(vol(),0.4); return; }
+      key=k; bar=0; nextT=ctx.currentTime+0.08;
+      if(timer) clearInterval(timer);
+      if(!BGM_TRACKS[k]){ fade(0,0.4); key=null; return; }
+      fade(vol(),0.8);
+      loop();
+      timer=setInterval(loop,500);
+    },
+    stop(){ if(timer){clearInterval(timer);timer=null;} key=null; fade(0,0.3); },
+    /* せっていが かわった ときに よぶ */
+    refresh(){ if(key) fade(vol(),0.3); if(vol()===0) this.stop(); else if(wanted&&!key) this.play(wanted); },
+    isOn(){ return vol()>0; }
+  };
+})();
+
+</script>
+<script>
+/* =========================================================
+   mini.js — ミニゲーム（コンプリートの ごほうび）
+   ・アイスキャッチ  ：アイス24こ ぜんぶ あつめると あそべる
+   ・どうぶつ タッチ  ：おともだち ぜんいんに あうと あそべる
+   ・もじ ハンター    ：もじを 92こ ぜんぶ かくと あそべる
+   まけは なし。じかんが きたら みんな ごほうびの がめん。
+   ========================================================= */
+
+const MINI_LIST=[
+  {id:'catch', n:'アイスキャッチ', e:'🍦', need:'ice',  lock:'アイスを ぜんぶ あつめると あそべるよ'},
+  {id:'touch', n:'どうぶつ タッチ', e:'👋', need:'char', lock:'おともだち ぜんいんに あうと あそべるよ'},
+  {id:'hunt',  n:'もじ ハンター',  e:'✏️', need:'kana', lock:'もじを ぜんぶ かくと あそべるよ'}
+];
+const miniProgress=need=>{
+  if(need==='ice')  return save.owned.length+' / '+ICES.length;
+  if(need==='char') return (save.chars||[]).length+' / '+ALL_CHARS.length;
+  if(need==='kana') return (save.wrote||[]).length+' / 92';
+  return '';
+};
+const miniOpen=need=>{
+  if(need==='ice')  return save.owned.length>=ICES.length;
+  if(need==='char') return (save.chars||[]).length>=ALL_CHARS.length;
+  if(need==='kana') return (save.wrote||[]).length>=92;
+  return false;
+};
+const miniBest=id=>((save.best||{})[id]||0);
+function miniSaveBest(id,v){
+  if(!save.best) save.best={};
+  if(v>(save.best[id]||0)){ save.best[id]=v; persist(); return true; }
+  return false;
+}
+
+/* ---------- ミニゲームの えらぶ がめん ---------- */
+function showMiniHub(){
+  A=null; stopSpeak(); setBG('title');
+  if(typeof BGM!=='undefined') BGM.play('mini');
+  const anyOpen=MINI_LIST.some(m=>miniOpen(m.need));
+  app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">🎮</div></div>
+    <div class="h2">🎮 ミニゲーム</div>
+    <div class="list">
+      ${MINI_LIST.map((m,i)=>{ const ok=miniOpen(m.need);
+        return `<div class="item ${ok?'':'locked'}"><div class="em">${ok?m.e:'🔒'}</div>
+          <div class="nm">${ok?m.n:'？？？'}<small>${ok?('さいこう きろく：'+miniBest(m.id)):(m.lock+'（'+miniProgress(m.need)+'）')}</small></div>
+          ${ok?`<button class="btn c3" data-mini="${m.id}">あそぶ</button>`:`<div class="btn locked" style="min-height:52px;font-size:16px">まだ</div>`}</div>`;}).join('')}
+    </div>
+    <div class="note">${anyOpen?'とくてんは いつでも あそべるよ':'コンプリートすると あそべるように なるよ'}</div>`;
+  $('#homeBtn').onclick=showTitle;
+  app.querySelectorAll('[data-mini]').forEach(b=>b.onclick=()=>startMini(b.dataset.mini));
+  speak(anyOpen?'ミニゲームで あそぼう':'コンプリートすると あそべるように なるよ');
+}
+
+function startMini(id){
+  if(id==='catch') miniCatch();
+  else if(id==='touch') miniTouch();
+  else miniHunt();
+}
+
+/* ---------- けっかの がめん ---------- */
+function miniResult(id,score,unit,praise){
+  const rec=miniSaveBest(id,score);
+  const g=MINI_LIST.find(m=>m.id===id);
+  app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">🎮</div></div>
+    <div class="stage big"><div class="main">${g.e}</div></div>
+    <div class="bubble"><div class="txt">${praise}<br>${score} ${unit}！${rec?'<br>🏆 さいこう きろく こうしん！':''}</div><button class="say">🔊</button></div>
+    <div class="choices two">
+      <button class="btn c3" id="again"><b>🔁</b>もういちど</button>
+      <button class="btn c4" id="back"><b>🎮</b>ゲームを えらぶ</button>
+    </div>`;
+  $('#homeBtn').onclick=showTitle;
+  const sayTxt=clean(praise)+' '+score+unit+'！'+(rec?' さいこう きろく こうしん！':'');
+  const s=$('.say'); if(s) s.onclick=()=>speak(sayTxt);
+  $('#again').onclick=()=>startMini(id);
+  $('#back').onclick=showMiniHub;
+  burst(rec?26:16); speak(sayTxt);
+}
+
+/* =========================================================
+   1. アイスキャッチ — おちてくる アイスを カゴで うける
+   ========================================================= */
+function miniCatch(){
+  const DUR=30;
+  app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button>
+      <div class="party" style="font-size:19px;font-weight:900" id="mScore">🍦 0</div>
+      <div class="pts" id="mTime">⏱ ${DUR}</div></div>
+    <div class="mfield" id="field"><div class="basket" id="basket">🧺</div></div>
+    <div class="note">ゆびを よこに うごかして アイスを うけとめよう</div>`;
+  const field=$('#field'), basket=$('#basket');
+  let score=0, left=DUR, items=[], raf=null, last=0, spawn=0, bx=0.5, over=false;
+  const FALL=['🍦','🍨','🍧','🍡','🍓','⭐'];
+  $('#homeBtn').onclick=()=>{ over=true; if(raf)cancelAnimationFrame(raf); if(tick)clearInterval(tick); showMiniHub(); };
+
+  const setX=cx=>{ const r=field.getBoundingClientRect();
+    bx=Math.max(0.07,Math.min(0.93,(cx-r.left)/r.width));
+    basket.style.left=(bx*100)+'%'; };
+  const move=ev=>{ ev.preventDefault(); const t=ev.touches?ev.touches[0]:ev; setX(t.clientX); };
+  field.addEventListener('pointerdown',move);
+  field.addEventListener('pointermove',ev=>{ if(ev.buttons||ev.pointerType==='touch') move(ev); });
+  field.addEventListener('touchmove',move,{passive:false});
+  basket.style.left='50%';
+
+  const tick=setInterval(()=>{
+    if(over) return;
+    left--; $('#mTime').textContent='⏱ '+left;
+    if(left<=0){ over=true; clearInterval(tick); if(raf)cancelAnimationFrame(raf);
+      setTimeout(()=>miniResult('catch',score,'こ ゲット','じょうず！ いっぱい とれたね！'),400); }
+  },1000);
+
+  function frame(t){
+    if(over) return;
+    if(!last) last=t;
+    const dt=Math.min(50,t-last)/1000; last=t;
+    spawn-=dt;
+    if(spawn<=0){
+      spawn=0.42+Math.random()*0.32;
+      const el=document.createElement('span');
+      el.className='falling'; el.textContent=FALL[Math.floor(Math.random()*FALL.length)];
+      el.style.left=(6+Math.random()*88)+'%'; el.style.top='-8%';
+      field.appendChild(el);
+      items.push({el,x:parseFloat(el.style.left)/100,y:-0.08,v:0.30+Math.random()*0.22});
+    }
+    for(let i=items.length-1;i>=0;i--){
+      const it=items[i]; it.y+=it.v*dt; it.el.style.top=(it.y*100)+'%';
+      if(it.y>0.80 && it.y<0.99 && Math.abs(it.x-bx)<0.12){
+        score++; $('#mScore').textContent='🍦 '+score;
+        it.el.classList.add('got'); const e=it.el; setTimeout(()=>e.remove(),300);
+        items.splice(i,1); continue;
+      }
+      if(it.y>1.05){ it.el.remove(); items.splice(i,1); }
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  speak('アイスを うけとめてね！ よーい、 スタート！');
+}
+
+/* =========================================================
+   2. どうぶつ タッチ — よばれた こを タッチ
+   ========================================================= */
+function miniTouch(){
+  const ROUNDS=10;
+  let round=0, score=0, locked=false;
+  const pool=ALL_CHARS.filter(c=>c.l);
+  next();
+  function next(){
+    if(round>=ROUNDS){
+      setTimeout(()=>miniResult('touch',score,'にん せいかい','よく みつけたね！'),400); return;
+    }
+    round++; locked=false;
+    const six=shuffle(pool).slice(0,6);
+    const ans=six[Math.floor(Math.random()*6)];
+    app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button>
+        <div class="party" style="font-size:19px;font-weight:900">${round} / ${ROUNDS}</div>
+        <div class="pts">⭕ ${score}</div></div>
+      <div class="bubble mini"><div class="txt">「${hon(ans.n)}」は どこ？</div><button class="say">🔊</button></div>
+      <div class="mgrid">${six.map(c=>`<button class="mcell" data-n="${c.n}">${art(c.n,54)}</button>`).join('')}</div>`;
+    $('#homeBtn').onclick=showMiniHub;
+    const readIt=()=>speak(hon(ans.n)+'は どこ？');
+    const s=$('.say'); if(s) s.onclick=readIt; readIt();
+    app.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{
+      if(locked) return;
+      if(b.dataset.n===ans.n){ locked=true; b.classList.add('right'); score++;
+        showWord('せいかい！'); burst(10); speak('せいかい！ '+hon(ans.n)+'！'); setTimeout(next,1100); }
+      else{ b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong');
+        speak('もういちど。 '+hon(ans.n)+'を さがしてね'); }
+    });
+  }
+}
+
+/* =========================================================
+   3. もじ ハンター — でてくる もじの なかから おなじ もじを タッチ
+   ========================================================= */
+function miniHunt(){
+  const DUR=30;
+  let score=0, left=DUR, over=false, locked=false;
+  const all=(typeof ALL_KANA!=='undefined')?Object.keys(ALL_KANA):HIRA.map(h=>h[0][0]);
+  round();
+  const tick=setInterval(()=>{
+    if(over) return;
+    left--; const el=$('#mTime'); if(el) el.textContent='⏱ '+left;
+    if(left<=0){ over=true; clearInterval(tick);
+      setTimeout(()=>miniResult('hunt',score,'もじ せいかい','もじ ハンター、 だいせいこう！'),400); }
+  },1000);
+  function round(){
+    if(over) return;
+    locked=false;
+    const pick9=shuffle(all).slice(0,9);
+    const ans=pick9[Math.floor(Math.random()*9)];
+    app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button>
+        <div class="party" style="font-size:19px;font-weight:900">⭕ ${score}</div>
+        <div class="pts" id="mTime">⏱ ${left}</div></div>
+      <div class="bubble mini"><div class="txt">「${ans}」は どこ？</div><button class="say">🔊</button></div>
+      <div class="hgrid">${pick9.map(k=>`<button class="hcell" data-k="${k}">${k}</button>`).join('')}</div>`;
+    $('#homeBtn').onclick=()=>{ over=true; clearInterval(tick); showMiniHub(); };
+    const kata=c=>String(c).replace(/[ぁ-ん]/g,m=>String.fromCharCode(m.charCodeAt(0)+0x60));
+    const readIt=()=>speak(kata(ans)+'は どこ？');
+    const s=$('.say'); if(s) s.onclick=readIt; readIt();
+    app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{
+      if(locked||over) return;
+      if(b.dataset.k===ans){ locked=true; b.classList.add('right'); score++; burst(8);
+        speak('せいかい！'); setTimeout(round,600); }
+      else{ b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); speak('もういちど'); }
+    });
+  }
+}
+
+</script>
 <script>
 /* =========================================================
    1. がくしゅう データ
@@ -653,6 +1048,38 @@ const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
 const $=s=>document.querySelector(s);
 /* BGM：bgm.js が よみこめて いない ときも エラーに しない */
 const bgmPlay=k=>{ try{ if(typeof BGM!=='undefined') BGM.play(k); }catch(e){} };
+/* ミニゲームが ひとつでも あそべるか（mini の コードが ない ときは false）*/
+/* がめんが したに つづく ときに めじるしを だす */
+(function(){
+  const upd=()=>{ const a=$('#app'), m=document.getElementById('more'); if(!a||!m) return;
+    const more=a.scrollHeight-a.clientHeight-a.scrollTop;
+    m.classList.toggle('on', a.scrollHeight-a.clientHeight>12 && more>12); };
+  const start=()=>{ const a=$('#app'); if(!a) return;
+    a.addEventListener('scroll',upd,{passive:true});
+    new MutationObserver(()=>setTimeout(upd,60)).observe(a,{childList:true,subtree:false});
+    window.addEventListener('resize',upd); setTimeout(upd,120); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+const miniAnyOpen=()=>{ try{ return typeof MINI_LIST!=='undefined' && MINI_LIST.some(m=>miniOpen(m.need)); }catch(e){ return false } };
+/* よみこめて いない ファイルを しらべる */
+function missingFiles(){
+  const need=[['art.js',()=>typeof charArt==='function'],['kana.js',()=>typeof startTrace==='function'],
+              ['bgm.js',()=>typeof BGM!=='undefined'],['mini.js',()=>typeof showMiniHub==='function']];
+  return need.filter(n=>{ try{ return !n[1]() }catch(e){ return true } }).map(n=>n[0]);
+}
+function showMissing(files,back){
+  app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">⚠️</div></div>
+    <div class="h2">ファイルが たりません</div>
+    <div class="note" style="font-size:16px;line-height:1.7;text-align:left">
+      つぎの ファイルが よみこめて いません：<br>
+      <b style="font-size:19px">${files.join('　')}</b><br><br>
+      1. index.html と おなじ フォルダに おく<br>
+      2. GitHub に アップロードしたか かくにんする<br>
+      3. ファイルめいは ぜんぶ こもじ（bgm.js / mini.js）<br>
+      4. アップずみなら、ページを ひっぱって さいよみこみ
+    </div>`;
+  $('#homeBtn').onclick=back||showTitle;
+}
 /* iPhone は さいしょに ゆびで さわるまで おとが だせない きまり */
 (function(){ const go=()=>{ try{ if(typeof BGM!=='undefined') BGM.unlock(); }catch(e){}
     document.removeEventListener('pointerdown',go); document.removeEventListener('touchstart',go); };
@@ -737,7 +1164,7 @@ function showTitle(){
     </div>
     <div class="row">
       <button class="btn c3 sm" id="write"><b>✏️</b>もじを かこう</button>
-      <button class="btn c1 sm" id="mini"><b>🎮</b>ミニゲーム</button>
+      <button class="btn ${miniAnyOpen()?'c1':'locked'} sm" id="mini"><b>${miniAnyOpen()?'🎮':'🔒'}</b>ミニゲーム</button>
       <button class="btn c4 sm" id="setting"><b>⚙️</b>せってい</button>
     </div>
     <p>⭐ ${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}　✏️ ${(save.wrote||[]).length}/92${save.cleared?'　🌙 クリア':''}</p>
@@ -746,9 +1173,14 @@ function showTitle(){
   $('#shop').onclick=()=>{ speak('アイスやさんへ ようこそ'); showShop(); };
   $('#zukan').onclick=()=>{ speak('アイスずかん'); showZukan(); };
   $('#czukan').onclick=()=>{ speak('おともだち ずかん'); showCharZukan(); };
-  $('#mini').onclick=()=>showMiniHub();
+  $('#mini').onclick=()=>{
+    if(typeof showMiniHub!=='function'){ showMissing(['mini.js']); return; }
+    if(!miniAnyOpen()) speak('コンプリートすると あそべるように なるよ');
+    showMiniHub();
+  };
   $('#write').onclick=()=>{
-    if(typeof showKanaChart!=='function'||typeof KANA_PATHS==='undefined'){
+    if(typeof showKanaChart!=='function'||typeof KANA_PATHS==='undefined'){ showMissing(['kana.js']); return; }
+    if(false){
       /* kana.js が よみこめて いない ときは りゆうを がめんに だす */
       app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">✏️</div></div>
         <div class="h2">よみこみ エラー</div>
@@ -822,7 +1254,8 @@ function showMap(){
    6. ぼうけん エンジン
    ========================================================= */
 let A=null, Q=[];
-const run=()=>{ const f=Q.shift(); if(f) f(); };
+/* ぼうけんの とちゅうで 🏠 を おしたら、のこりの ばめんを とめる */
+const run=()=>{ if(!A){ Q=[]; return; } const f=Q.shift(); if(f) f(); };
 const withStr=()=>{ const p=A.party; if(p.length===1) return hon(p[0].n)+'と ふたりで'; return p.map(c=>hon(c.n)).join('と ')+'と みんなで'; };
 const whoStr=()=>A.party.map(c=>hon(c.n)).join('と ');
 const crewStr=()=>A.party.length>1?'みんな':(A.party[0]?hon(A.party[0].n):'');
@@ -1151,13 +1584,14 @@ function showSetting(){
   const vs=jaVoices();
   app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">⚙️</div></div>
     <div class="h2">せってい</div>
-    <div class="lbl">BGM（おんがく）</div>
+    <div class="lbl">BGM（おんがく）${typeof BGM==='undefined'?' <span style="color:#C0392B;font-size:15px">bgm.js が ありません</span>':''}</div>
     <div class="seg" id="bgm" style="grid-template-columns:repeat(4,1fr)">${['なし','ちいさめ','ふつう','おおきめ'].map((l,i)=>`<button data-v="${i}" class="${save.bgm===i?'on':''}" style="font-size:16px">${l}</button>`).join('')}</div>
     <div class="lbl">はなす はやさ</div>
     <div class="seg" id="rate">${['ゆっくり','ふつう','はやい'].map((l,i)=>`<button data-v="${i+1}" class="${save.rate===i+1?'on':''}">${l}</button>`).join('')}</div>
     <div class="lbl">こえの たかさ</div>
     <div class="seg" id="pitch">${['ひくい','ふつう','たかい'].map((l,i)=>`<button data-v="${i+1}" class="${save.pitch===i+1?'on':''}">${l}</button>`).join('')}</div>
     ${vs.length>1?`<div class="lbl">こえの しゅるい</div><div class="list" style="max-height:180px">${vs.map(v=>`<div class="item"><div class="nm" style="font-size:18px">${v.name}</div><button class="btn ${save.voice===v.name?'c3':'c4'}" data-voice="${v.name}">${save.voice===v.name?'えらんでる':'えらぶ'}</button></div>`).join('')}</div>`:''}
+    ${missingFiles().length?`<div class="note" style="font-size:15px;color:#C0392B">よみこめて いない ファイル：${missingFiles().join('　')}</div>`:''}
     <div class="note">きいて ためせるよ 🔊</div>
     <button class="btn c1" id="test" style="margin-top:10px">こえを きいて みる</button>
     <button class="btn c5" id="opAgain" style="margin-top:10px"><b style="font-size:26px">📖</b>はじまりの おはなしを みる</button>`;
