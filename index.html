@@ -358,7 +358,7 @@ const BGM_TRACKS={
 };
 
 /* おおきさ（3だんかい）。0 は おと なし */
-const BGM_VOLS=[0, 0.10, 0.18, 0.28];
+const BGM_VOLS=[0, 0.13, 0.24, 0.38];
 
 const BGM=(()=>{
   let ctx=null, master=null, filt=null;
@@ -453,10 +453,37 @@ const BGM=(()=>{
       const self=this;
       if(!ensure()) return;
       started=true;
+      /* iPhone を おこす おまじない：ゆびで さわった その しゅんかんに
+         おとの ない 1サンプルを ならすと、Web Audio が つかえるように なる */
+      try{
+        const buf=ctx.createBuffer(1,1,22050);
+        const src=ctx.createBufferSource();
+        src.buffer=buf; src.connect(ctx.destination); src.start(0);
+      }catch(e){}
       const go=()=>{ if(wanted) self.play(wanted); };
-      /* iPhone は resume が おわってから でないと おとが ずれる */
-      if(ctx.state==='suspended') ctx.resume().then(go).catch(go);
-      else go();
+      try{
+        const r=ctx.resume();
+        if(r&&r.then) r.then(go).catch(go); else go();
+      }catch(e){ go(); }
+    },
+    /* いまの じょうたい（せっていがめんの しんだんよう）*/
+    state(){
+      if(!(window.AudioContext||window.webkitAudioContext)) return 'このブラウザは おとを だせません';
+      if(!ctx) return 'まだ さわって いません';
+      return ctx.state==='running'?('OK（'+(key||'まちうけ')+'）'):('とまっています（'+ctx.state+'）');
+    },
+    /* せっていがめんの おためし：その ばで みじかい メロディを ならす */
+    test(){
+      if(!ensure()) return false;
+      try{ const b=ctx.createBuffer(1,1,22050), s2=ctx.createBufferSource(); s2.buffer=b; s2.connect(ctx.destination); s2.start(0); }catch(e){}
+      try{ const r=ctx.resume(); if(r&&r.then) r.catch(()=>{}); }catch(e){}
+      started=true;
+      const t0=ctx.currentTime+0.05, g=master.gain;
+      g.cancelScheduledValues(ctx.currentTime);
+      g.setValueAtTime(Math.max(vol(),0.14),ctx.currentTime);
+      [72,76,79,84].forEach((m,i)=>tone(MIDI(m),t0+i*0.16,0.4,'triangle',0.18));
+      setTimeout(()=>{ if(key) fade(vol(),0.3); else fade(0,0.3); },1200);
+      return true;
     },
     /* きょくを かえる（おなじ きょくなら なにも しない）*/
     play(k){
@@ -474,7 +501,8 @@ const BGM=(()=>{
     stop(){ if(timer){clearInterval(timer);timer=null;} key=null; fade(0,0.3); },
     /* せっていが かわった ときに よぶ */
     refresh(){ if(key) fade(vol(),0.3); if(vol()===0) this.stop(); else if(wanted&&!key) this.play(wanted); },
-    isOn(){ return vol()>0; }
+    isOn(){ return vol()>0; },
+    ready(){ try{ return !!ctx && ctx.state==='running'; }catch(e){ return false } }
   };
 })();
 
@@ -1047,6 +1075,7 @@ const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
    ========================================================= */
 const $=s=>document.querySelector(s);
 /* BGM：bgm.js が よみこめて いない ときも エラーに しない */
+const APPVER='v25';
 const bgmPlay=k=>{ try{ if(typeof BGM!=='undefined') BGM.play(k); }catch(e){} };
 /* ミニゲームが ひとつでも あそべるか（mini の コードが ない ときは false）*/
 /* がめんが したに つづく ときに めじるしを だす */
@@ -1081,9 +1110,13 @@ function showMissing(files,back){
   $('#homeBtn').onclick=back||showTitle;
 }
 /* iPhone は さいしょに ゆびで さわるまで おとが だせない きまり */
-(function(){ const go=()=>{ try{ if(typeof BGM!=='undefined') BGM.unlock(); }catch(e){}
-    document.removeEventListener('pointerdown',go); document.removeEventListener('touchstart',go); };
-  document.addEventListener('pointerdown',go,{once:true}); document.addEventListener('touchstart',go,{once:true}); })();
+(function(){
+  /* iPhone は 1かいめの タップで おこせない ことが あるので、
+     おとが でるように なるまで さわる たびに ためす */
+  const go=()=>{ try{ if(typeof BGM==='undefined') return; BGM.unlock();
+      if(BGM.ready&&BGM.ready()){ document.removeEventListener('pointerdown',go); document.removeEventListener('touchstart',go); }
+    }catch(e){} };
+  document.addEventListener('pointerdown',go); document.addEventListener('touchstart',go); })();
 let curBG=null;
 function setBG(id){ if(curBG===id) return; curBG=id; const b=document.getElementById('bg'); if(b) b.innerHTML=bgArt(id); }
 const art=(name,size)=>(typeof charArt==='function'?charArt(name,size):'');
@@ -1591,6 +1624,12 @@ function showSetting(){
     <div class="lbl">こえの たかさ</div>
     <div class="seg" id="pitch">${['ひくい','ふつう','たかい'].map((l,i)=>`<button data-v="${i+1}" class="${save.pitch===i+1?'on':''}">${l}</button>`).join('')}</div>
     ${vs.length>1?`<div class="lbl">こえの しゅるい</div><div class="list" style="max-height:180px">${vs.map(v=>`<div class="item"><div class="nm" style="font-size:18px">${v.name}</div><button class="btn ${save.voice===v.name?'c3':'c4'}" data-voice="${v.name}">${save.voice===v.name?'えらんでる':'えらぶ'}</button></div>`).join('')}</div>`:''}
+    <button class="btn c2" id="bgmTest" style="margin-top:6px"><b style="font-size:24px">♪</b>BGMを ためす</button>
+    <div class="note" style="font-size:14px;line-height:1.6;text-align:left">
+      BGM の じょうたい：<b id="bgmState">${typeof BGM!=='undefined'?BGM.state():'bgm なし'}</b><br>
+      おとが でない ときは、iPhone よこの <b>マナーモード スイッチ</b>（オレンジが みえて いたら オフに）を たしかめてね。<br>
+      <span style="color:#8A7B74">ばーじょん ${APPVER}</span>
+    </div>
     ${missingFiles().length?`<div class="note" style="font-size:15px;color:#C0392B">よみこめて いない ファイル：${missingFiles().join('　')}</div>`:''}
     <div class="note">きいて ためせるよ 🔊</div>
     <button class="btn c1" id="test" style="margin-top:10px">こえを きいて みる</button>
@@ -1601,6 +1640,11 @@ function showSetting(){
   app.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{ save.voice=b.dataset.voice; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   $('#test').onclick=()=>speak('うみに いくよ。',900,'くるま？ あるく？');
   $('#opAgain').onclick=()=>showOpening(showSetting);
+  $('#bgmTest').onclick=()=>{
+    if(typeof BGM==='undefined'){ showMissing(['bgm の コード']); return; }
+    BGM.test();
+    const el=$('#bgmState'); if(el) setTimeout(()=>{ el.textContent=BGM.state(); },400);
+  };
   app.querySelectorAll('#bgm button').forEach(b=>b.onclick=()=>{
     save.bgm=+b.dataset.v; persist();
     if(typeof BGM!=='undefined'){ BGM.unlock(); BGM.refresh(); }
