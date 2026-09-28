@@ -119,6 +119,11 @@
   .seg button{border:0;border-radius:18px;padding:14px 4px;font-family:inherit;font-size:19px;font-weight:900;background:#fff;color:var(--soft);box-shadow:0 4px 0 var(--shadow)}
   .seg button.on{background:var(--sun);color:var(--ink)}
   .lbl{font-size:19px;font-weight:900;margin-top:6px}
+  .code{width:100%;min-height:96px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;
+    border:3px solid var(--ink);border-radius:16px;padding:10px;background:#fff;color:var(--ink);
+    box-shadow:0 4px 0 var(--shadow);resize:none;-webkit-user-select:text;user-select:text;word-break:break-all}
+  .credit{font-size:12px;line-height:1.7;color:#8A7B74;text-align:center;margin-top:14px;padding:0 4px}
+  .credit a{color:#6E5F57}
 
   /* ドリル */
   .drill{background:#fff;border-radius:22px;padding:10px 12px;box-shadow:0 4px 0 var(--shadow);margin-top:auto;text-align:center}
@@ -304,8 +309,8 @@
 <canvas id="fw"></canvas>
 <div id="fin" class="fin"><div class="fcrew" id="fincrew"></div><div class="fc" id="fincenter"></div><div class="fw" id="finword"></div><div class="fs" id="finsub"></div><div class="tap">タップ すると つづくよ</div></div>
 
-<script src="art.js"></script>
-<script src="kana.js"></script>
+<script src="art.js?v=28"></script>
+<script src="kana.js?v=28"></script>
 <script>
 /* =========================================================
    bgm.js — BGM（おんがく）
@@ -1075,7 +1080,7 @@ const ADD_EMOJI=['🍎','🍓','⭐','🍪','🐟','🎈','🌰','🍬'];
    ========================================================= */
 const $=s=>document.querySelector(s);
 /* BGM：bgm.js が よみこめて いない ときも エラーに しない */
-const APPVER='v25';
+const APPVER='v28';
 const bgmPlay=k=>{ try{ if(typeof BGM!=='undefined') BGM.play(k); }catch(e){} };
 /* ミニゲームが ひとつでも あそべるか（mini の コードが ない ときは false）*/
 /* がめんが したに つづく ときに めじるしを だす */
@@ -1095,6 +1100,67 @@ function missingFiles(){
   const need=[['art.js',()=>typeof charArt==='function'],['kana.js',()=>typeof startTrace==='function'],
               ['bgm.js',()=>typeof BGM!=='undefined'],['mini.js',()=>typeof showMiniHub==='function']];
   return need.filter(n=>{ try{ return !n[1]() }catch(e){ return true } }).map(n=>n[0]);
+}
+/* =========================================================
+   データの ひきつぎ
+   すすみぐあいは ブラウザごとに べつべつに ほぞんされる。
+   （Safari と ホームがめん、iPhone と iPad など）
+   そこで、コードに して うつしかえられるように する。
+   ========================================================= */
+function saveCode(){
+  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(save)))); }catch(e){ return ''; }
+}
+function loadCode(code){
+  try{
+    const o=JSON.parse(decodeURIComponent(escape(atob(String(code).replace(/\s/g,'')))));
+    if(!o||typeof o!=='object'||typeof o.points!=='number') return false;
+    save=Object.assign({points:0,owned:[],chars:[],wrote:[],rate:2,pitch:2,voice:'',bgm:2,seenOp:true,cleared:false,best:{}},o);
+    if(!Array.isArray(save.owned)) save.owned=[];
+    if(!Array.isArray(save.chars)) save.chars=[];
+    if(!Array.isArray(save.wrote)) save.wrote=[];
+    if(!save.best||typeof save.best!=='object') save.best={};
+    if(typeof save.bgm!=='number') save.bgm=2;
+    persist(); return true;
+  }catch(e){ return false; }
+}
+function showTransfer(){
+  A=null; stopSpeak(); setBG('title');
+  const code=saveCode();
+  app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">🔑</div></div>
+    <div class="h2">データの ひきつぎ</div>
+    <div class="note" style="font-size:15px;line-height:1.7;text-align:left">
+      すすみぐあいは、ひらいた ばしょごとに べつべつに ほぞんされます。<br>
+      （Safari ↔ ホームがめん、iPhone ↔ iPad など）<br>
+      うつしたい ときは、<b>もとの がめんで コードを コピー</b> → <b>うつす さきで はりつけ</b>。
+    </div>
+    <div class="lbl">1. いまの データの コード</div>
+    <textarea class="code" id="outCode" readonly>${code}</textarea>
+    <div style="font-size:14px;color:var(--soft);font-weight:700;margin:4px 2px">
+      ⭐ ${save.points}　🍦 ${save.owned.length}/${ICES.length}　👥 ${save.chars.length}/${ALL_CHARS.length}　✏️ ${(save.wrote||[]).length}/92
+    </div>
+    <button class="btn c3" id="copyCode" style="min-height:64px"><b style="font-size:24px">📋</b>コードを コピー</button>
+    <div class="lbl" style="margin-top:14px">2. コードを はりつけて ひきつぐ</div>
+    <textarea class="code" id="inCode" placeholder="ここに コードを はりつけてね"></textarea>
+    <button class="btn c2" id="doLoad" style="min-height:64px"><b style="font-size:24px">🔑</b>このコードで ひきつぐ</button>
+    <div class="note" style="font-size:14px;color:#C0392B">ひきつぐと、この がめんの いまの データは きえます</div>`;
+  $('#homeBtn').onclick=showSetting;
+  $('#copyCode').onclick=()=>{
+    const t=$('#outCode'); t.focus(); t.select(); t.setSelectionRange(0,999999);
+    let ok=false;
+    try{ ok=document.execCommand('copy'); }catch(e){}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(()=>{ showWord('コピーした！'); }).catch(()=>{ if(!ok) alert('えらべる じょうたいに したので、ゆびで コピーしてね'); });
+    }else if(ok) showWord('コピーした！');
+    else alert('えらべる じょうたいに したので、ゆびで コピーしてね');
+  };
+  $('#doLoad').onclick=()=>{
+    const v=$('#inCode').value;
+    if(!v.trim()){ alert('コードを はりつけてね'); return; }
+    if(!confirm('この がめんの いまの データは きえます。 ひきつぎますか？')) return;
+    if(loadCode(v)){ burst(20); speak('データを ひきつぎました！'); setTimeout(showTitle,900); }
+    else alert('コードが ちがうようです。 もういちど コピーして みてね');
+  };
+  speak('データの ひきつぎ');
 }
 function showMissing(files,back){
   app.innerHTML=`<div class="top"><button class="icon" id="homeBtn">🏠</button><div class="pts">⚠️</div></div>
@@ -1633,13 +1699,20 @@ function showSetting(){
     ${missingFiles().length?`<div class="note" style="font-size:15px;color:#C0392B">よみこめて いない ファイル：${missingFiles().join('　')}</div>`:''}
     <div class="note">きいて ためせるよ 🔊</div>
     <button class="btn c1" id="test" style="margin-top:10px">こえを きいて みる</button>
-    <button class="btn c5" id="opAgain" style="margin-top:10px"><b style="font-size:26px">📖</b>はじまりの おはなしを みる</button>`;
+    <button class="btn c5" id="opAgain" style="margin-top:10px"><b style="font-size:26px">📖</b>はじまりの おはなしを みる</button>
+    <button class="btn c4" id="transfer" style="margin-top:10px"><b style="font-size:26px">🔑</b>データの ひきつぎ</button>
+    <div class="credit">
+      もじの かきじゅんデータ：<a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>
+      © 2009–2011 Ulrich Apel ／
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>
+    </div>`;
   $('#homeBtn').onclick=showTitle;
   app.querySelectorAll('#rate button').forEach(b=>b.onclick=()=>{ save.rate=+b.dataset.v; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   app.querySelectorAll('#pitch button').forEach(b=>b.onclick=()=>{ save.pitch=+b.dataset.v; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   app.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{ save.voice=b.dataset.voice; persist(); showSetting(); speak('こんにちは！ ぼうけんに いこう！'); });
   $('#test').onclick=()=>speak('うみに いくよ。',900,'くるま？ あるく？');
   $('#opAgain').onclick=()=>showOpening(showSetting);
+  $('#transfer').onclick=showTransfer;
   $('#bgmTest').onclick=()=>{
     if(typeof BGM==='undefined'){ showMissing(['bgm の コード']); return; }
     BGM.test();
