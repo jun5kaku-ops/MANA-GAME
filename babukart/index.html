@@ -661,7 +661,7 @@
   <div id="ttDiag" class="note" style="font-size:12px;opacity:.85"></div>
   <div class="btns">
     <select id="sensSel" class="courseSel">
-      <option value="xlow">感度：とても低い（ゆったり）</option>
+      <option value="xlow">感度：とても低い（おすすめ）</option>
       <option value="low">感度：低（大きく回す）</option>
       <option value="mid">感度：ふつう</option>
       <option value="high">感度：高（少し回すだけ）</option>
@@ -670,7 +670,7 @@
     <button class="btn gray small" id="ttCalib">今の持ち方を「まっすぐ」に</button>
     <button class="btn small" id="ttClose">とじる</button>
   </div>
-  <div class="note">横向きに持ち、ハンドルのように左右に回すと黄色い丸が動けばOKです。曲がりすぎるときは「感度：低」、回しすぎて画面が縦になるときは「感度：高」にしてください。</div>
+  <div class="note">横向きに持ち、ハンドルのように左右に回すと黄色い丸が動けばOKです。「おたすけハンドル ON」＋「感度：とても低い」がおすすめです（はじめから この設定です）。</div>
 </div></div>
 
 <div id="pause" class="overlay hidden">
@@ -3131,7 +3131,7 @@ $('noPhotoBtn').addEventListener('click', () => { regFace = null; $('faceInput')
 function applyBabyLook() { karts.forEach(k => { k.model.kart.visible = !babyOn; k.model.stroller.visible = babyOn; }); }
 // ---- ばぶばぶモード・おたすけハンドル ----
 babyOn = store.get('baby') === true;
-assistOn = store.get('assist') !== false && CONFIG.ASSIST;
+assistOn = store.get('assistB') !== false && CONFIG.ASSIST;
 function renderBaby() {
   $('babyBtn').textContent = `🍼 ばぶばぶモード：${babyOn ? 'ON' : 'OFF'}`;
   $('babyBtn').classList.toggle('on', babyOn);
@@ -3144,7 +3144,7 @@ $('babyBtn').addEventListener('click', () => {
   playMusic(babyOn ? 'babyTitle' : 'title');
 });
 $('assistSel').value = assistOn ? 'on' : 'off';
-$('assistSel').addEventListener('change', e => { assistOn = e.target.value === 'on'; store.set('assist', assistOn); });
+$('assistSel').addEventListener('change', e => { assistOn = e.target.value === 'on'; store.set('assistB', assistOn); });
 renderBaby();
 
 $('cardRedo').addEventListener('click', () => openReg(afterReg));
@@ -5009,7 +5009,7 @@ padEl.querySelectorAll('[data-act]').forEach(b => {
 const ctrlPref = () => store.get('ctrl') || 'tilt';
 // 感度：何度回すとハンドルいっぱいか（小さいほど少し回すだけで曲がる。大きく回すと画面が縦に回ってしまうため）
 const SENS = { xlow: 40, low: 30, mid: 20, high: 13 };
-const sensPref = () => store.get('tiltSens') || 'mid';
+const sensPref = () => store.get('tiltSensB') || 'xlow';
 const TILT_DEAD = 2.5;
 const TILT_EXPO = 1.7;   // 1より大きいほど、少しの傾きではゆるく曲がる（大きく回したときだけ鋭く曲がる）
 const tilt = { steer: 0, wheel: 0, wheel0: 0, pitch: 0, pitch0: null, last: 0, asked: false, denied: false, refAng: null, raw: {} };
@@ -5211,7 +5211,7 @@ $('ttAllow').addEventListener('click', () => {
 });
 $('ttCalib').addEventListener('click', () => { calibrateTilt(); toast('今の持ち方を「まっすぐ」にしました'); });
 $('ttClose').addEventListener('click', () => { tiltTestOpen = false; $('tiltTest').classList.add('hidden'); });
-$('sensSel').addEventListener('change', e => store.set('tiltSens', e.target.value));
+$('sensSel').addEventListener('change', e => store.set('tiltSensB', e.target.value));
 $('ctrlSel').addEventListener('change', e => {
   store.set('ctrl', e.target.value);
   tilt.asked = false; tilt.denied = false;
