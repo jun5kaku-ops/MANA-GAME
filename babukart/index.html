@@ -1933,7 +1933,7 @@ function resetKart(k, g) {
   k.pos.set(p.x, 0, p.z);
   k.heading = headingAt(idx);
   k.speed = 0; k.y = 0; k.vy = 0; k.airborne = false;
-  k.rescue = null; k.stuckT = 0; k.progMark = null;
+  k.rescue = null; k.stuckT = 0; k.progMark = null; k.fenceT = 0;
   k.finished = false; k.finishTime = 0; k.splashTimer = 0;
   k.lat = g.lat; k.lane = g.lat; k.s = g.s; k.lapShown = 1;
   k.net = null; k.netInit = false;
@@ -2505,7 +2505,7 @@ function respawnAfterRiver(k) {
 // =====================================================================
 //  レッカー車の救済：前に進めない状態が続いたら、レッカー車が来てコースの真ん中へ戻してくれる
 // =====================================================================
-const RESCUE_WAIT = 2.5;          // 何秒進めなかったら来るか
+const RESCUE_WAIT = 2;          // 何秒進めなかったら来るか
 let towTruck = null;
 function makeTowTruck() {
   const g = new THREE.Group(), m = c => new THREE.MeshLambertMaterial({ color: c });
@@ -2523,12 +2523,17 @@ function makeTowTruck() {
   scene.add(g); g.visible = false;
   return { g, lamp, rope };
 }
+// 「ほとんど進んでいない」が続いたら救済（ゆっくり じりじり進む場合も含む）
+const RESCUE_MIN_DIST = 14;       // RESCUE_WAIT 秒で これだけ（m）進めなければ救済
 function checkStuck(p, dt) {
   if (p.progMark == null) p.progMark = p.prog;
-  if (state !== 'race' || p.finished || p.airborne || p.parkT > 0 || p.spinT > 0 || p.rescue) { p.stuckT = 0; p.progMark = p.prog; return; }
-  if (p.prog - p.progMark > 5) { p.progMark = p.prog; p.stuckT = 0; return; }
-  p.stuckT = (p.stuckT || 0) + dt;
-  if (p.stuckT > RESCUE_WAIT) startRescue(p);
+  if (state !== 'race' || p.finished || p.airborne || p.parkT > 0 || p.spinT > 0 || p.rescue) { p.stuckT = 0; p.progMark = p.prog; p.fenceT = 0; return; }
+  // 柵にこすれていない時間が続けば リセット
+  if (Math.abs(p.lat) < hw + 6) p.fenceT = Math.max(0, (p.fenceT || 0) - dt * 2);
+  if ((p.prog - p.progMark) * ds > RESCUE_MIN_DIST) { p.progMark = p.prog; p.stuckT = 0; }
+  else p.stuckT = (p.stuckT || 0) + dt;
+  // 進めない／柵ぎわに4秒以上はりついている → レッカー
+  if (p.stuckT > RESCUE_WAIT || p.fenceT > 2) startRescue(p);
 }
 function startRescue(p) {
   if (!towTruck) towTruck = makeTowTruck();
@@ -2539,7 +2544,7 @@ function startRescue(p) {
   dir.normalize();
   const h1 = headingAt(i), park = from.clone().addScaledVector(dir, 4.2);
   p.rescue = { t: 0, from, to, h0: p.heading, h1, park, h: h1 };
-  p.speed = 0; p.stuckT = 0;
+  p.speed = 0; p.stuckT = 0; p.fenceT = 0;
   banner('レッカーしゃが きたよ！', 'jump');
   say(babyOn ? 'ばぶー、たすけて〜' : 'レッカーしゃ、しゅつどう！', 1.6, 1.2);
   for (let k = 0; k < 3; k++) { tone(880, 0.25, 'triangle', 0.08, k * 0.5); tone(660, 0.25, 'triangle', 0.08, k * 0.5 + 0.25); }
@@ -2644,9 +2649,13 @@ function updatePlayer(dt) {
   if (Math.abs(p.lat) > LIMIT) {
     const over = p.lat - Math.sign(p.lat) * LIMIT, l = lefts[p.idx];
     p.pos.x -= l.x * over; p.pos.z -= l.z * over;
-    p.lat -= over; p.speed *= 0.9;
+    p.lat -= over;
+    p.speed *= Math.max(0, 1 - 0.6 * dt);           // 柵にそって すべる（ほとんど減速しない）
+    // 柵の外を向いていたら、すぐに道の向きへ向き直る（ハンドルを外に切っていても）
     const tH = headingAt(p.idx), dH = Math.atan2(Math.sin(tH - p.heading), Math.cos(tH - p.heading));
-    p.heading += dH * Math.min(1, dt * 5);          // 柵にあたると道の向きへ向き直る
+    const outward = Math.sign(p.lat) * Math.sin(p.heading - tH) > 0;   // 左の柵で左向き・右の柵で右向き
+    p.heading += dH * Math.min(1, dt * (outward ? 9 : 4));
+    p.fenceT = (p.fenceT || 0) + dt;
   }
 
   // 高さ（ジャンプ台・着地・川ポチャ）
