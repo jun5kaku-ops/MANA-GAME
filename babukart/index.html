@@ -572,6 +572,7 @@
         <li>スマホを よこに もって、ハンドルみたいに くるっと かたむけると まがるよ</li>
         <li>かってに すすむよ（とまりたいときは あかい ボタン）</li>
         <li>「おたすけハンドル」が ONだと、なにもしなくても みちに そって はしるよ</li>
+        <li>ひっかかって すすめなくなったら、🚚 レッカーしゃが たすけに きてくれるよ</li>
       </ul>
       <h3>🎁 アイテム</h3>
       <ul>
@@ -723,6 +724,7 @@ const CONFIG = {
   CPU_LEVEL: 'easy',        // CPUの強さの初期値（easy / normal / hard / oni）
   ITEMS: true,              // アイテム・障害物を使う（false で無し）
   PARK_SECONDS: 3,          // PARK24 で駐車させる秒数
+  STEER_ASSIST: false,           // スマホのおたすけハンドル（手を離すと道の向きにそって走る）の初期値
   CATCHUP: 0.15,            // 追い上げ補正：最下位は最高速度が最大5%アップ（0で無効）
   TUBE_START_CAP: 50,       // おかしトンネル：最初の最高速度（×4でkm/h表示＝200km/h）
   TUBE_PAD_CAP: 8,          // おかしトンネル：にじいろ矢印1つで上がる最高速度（＋32km/h）
@@ -1931,6 +1933,7 @@ function resetKart(k, g) {
   k.pos.set(p.x, 0, p.z);
   k.heading = headingAt(idx);
   k.speed = 0; k.y = 0; k.vy = 0; k.airborne = false;
+  k.rescue = null; k.stuckT = 0; k.progMark = null;
   k.finished = false; k.finishTime = 0; k.splashTimer = 0;
   k.lat = g.lat; k.lane = g.lat; k.s = g.s; k.lapShown = 1;
   k.net = null; k.netInit = false;
@@ -2499,9 +2502,84 @@ function respawnAfterRiver(k) {
 // =====================================================================
 //  プレイヤーの操作と物理
 // =====================================================================
+// =====================================================================
+//  レッカー車の救済：前に進めない状態が続いたら、レッカー車が来てコースの真ん中へ戻してくれる
+// =====================================================================
+const RESCUE_WAIT = 2.5;          // 何秒進めなかったら来るか
+let towTruck = null;
+function makeTowTruck() {
+  const g = new THREE.Group(), m = c => new THREE.MeshLambertMaterial({ color: c });
+  const box = (w, h, d, c, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m(c)); o.position.set(x, y, z); g.add(o); return o; };
+  box(2.8, 1.4, 6.4, 0xffc107, 0, 1.3, 0);           // 車体
+  box(2.6, 1.6, 1.9, 0x90caf9, 0, 2.7, 1.9);          // 運転席
+  box(2.8, 0.25, 0.4, 0xffffff, 0, 2.05, 3.25);       // バンパー
+  const arm = box(0.4, 0.4, 5.2, 0x757575, 0, 3.6, -1.2); arm.rotation.x = -0.45;
+  for (const [x, z] of [[1.35, 2], [-1.35, 2], [1.35, -2], [-1.35, -2]]) {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.5, 14), m(0x222222)); w.rotation.z = Math.PI / 2; w.position.set(x, 0.62, z); g.add(w);
+  }
+  const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.38, 10, 8), new THREE.MeshBasicMaterial({ color: 0xff5252 })); lamp.position.set(0, 3.7, 1.9); g.add(lamp);
+  const sign = makeSign(textTexture('レッカー', { w: 256, h: 96, bg: '#ff7043', fg: '#ffffff', size: 60 }), 2.6, 1); sign.position.set(1.42, 1.5, -0.6); sign.rotation.y = Math.PI / 2; g.add(sign);
+  const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1, 6), m(0x333333)); scene.add(rope); rope.visible = false;
+  scene.add(g); g.visible = false;
+  return { g, lamp, rope };
+}
+function checkStuck(p, dt) {
+  if (p.progMark == null) p.progMark = p.prog;
+  if (state !== 'race' || p.finished || p.airborne || p.parkT > 0 || p.spinT > 0 || p.rescue) { p.stuckT = 0; p.progMark = p.prog; return; }
+  if (p.prog - p.progMark > 5) { p.progMark = p.prog; p.stuckT = 0; return; }
+  p.stuckT = (p.stuckT || 0) + dt;
+  if (p.stuckT > RESCUE_WAIT) startRescue(p);
+}
+function startRescue(p) {
+  if (!towTruck) towTruck = makeTowTruck();
+  const i = (p.idx + 4) % N, w = worldAt(i, 0);
+  const to = new THREE.Vector3(w.x, 0, w.z), from = p.pos.clone();
+  let dir = to.clone().sub(from); dir.y = 0;
+  if (dir.length() < 0.5) dir.set(lefts[i].x, 0, lefts[i].z);
+  dir.normalize();
+  const h1 = headingAt(i), park = from.clone().addScaledVector(dir, 4.2);
+  p.rescue = { t: 0, from, to, h0: p.heading, h1, park, h: h1 };
+  p.speed = 0; p.stuckT = 0;
+  banner('レッカーしゃが きたよ！', 'jump');
+  say(babyOn ? 'ばぶー、たすけて〜' : 'レッカーしゃ、しゅつどう！', 1.6, 1.2);
+  for (let k = 0; k < 3; k++) { tone(880, 0.25, 'triangle', 0.08, k * 0.5); tone(660, 0.25, 'triangle', 0.08, k * 0.5 + 0.25); }
+}
+const _ease = u => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+function updateRescue(p, dt) {
+  const R = p.rescue;
+  if (!R) return false;
+  R.t += dt;
+  const t = R.t, T = towTruck;
+  // レッカー車：うしろから来て、カートのとなりにとまる
+  const ui = _ease(t / 0.6);
+  const back = new THREE.Vector3(Math.sin(R.h), 0, Math.cos(R.h)).multiplyScalar(-26 * (1 - ui));
+  T.g.visible = true;
+  T.g.position.copy(R.park).add(back);
+  T.g.rotation.y = R.h;
+  T.lamp.material.color.set(Math.floor(t * 6) % 2 ? 0xff5252 : 0xffeb3b);
+  // カート：つり上げる → まんなかへ → おろす
+  const lift = _ease((t - 0.6) / 0.5), move = _ease((t - 1.1) / 0.7), down = _ease((t - 1.8) / 0.35);
+  p.y = 3.2 * lift * (1 - down);
+  p.pos.copy(R.from).lerp(R.to, move);
+  p.heading = R.h0 + Math.atan2(Math.sin(R.h1 - R.h0), Math.cos(R.h1 - R.h0)) * move;
+  p.speed = 0;
+  T.rope.visible = t > 0.6 && t < 2.0;
+  if (T.rope.visible) { const top = p.y + 6.5, bot = p.y + 2.2; T.rope.position.set(p.pos.x, (top + bot) / 2 + Y_ROAD, p.pos.z); T.rope.scale.y = top - bot; }
+  if (t >= 2.2) {
+    p.y = 0; p.pos.copy(R.to); p.heading = R.h1;
+    updateTrackPos(p);
+    p.rescue = null; p.progMark = p.prog; p.stuckT = 0;
+    T.g.visible = false; T.rope.visible = false;
+    popText(babyOn ? 'ばぶ！ もういちど！' : 'もういちど しゅっぱつ！', 'up');
+    tone(784, 0.15, 'square', 0.08); tone(1047, 0.2, 'square', 0.08, 0.15);
+  } else updateTrackPos(p);
+  return true;
+}
 function updatePlayer(dt) {
   const p = player;
   if (isBonus()) { updateTube(dt); return; }
+  checkStuck(p, dt);
+  if (updateRescue(p, dt)) return;
   if (p.splashTimer > 0) {
     p.splashTimer -= dt;
     p.y = Math.max(-2.5, p.y - dt * 3);
@@ -2545,6 +2623,12 @@ function updatePlayer(dt) {
       const d = Math.atan2(Math.sin(want - p.heading), Math.cos(want - p.heading));
       p.heading += d * (Math.abs(steer) < 0.15 ? 1.8 : 0.5) * dt;
     }
+    // おたすけハンドル（スマホ操作のとき）：道の向きと真ん中へ、すこしずつ向きを直す（ハンドルを切っている間は弱め）
+    if (steerAssistOn() && ctl && p.speed > 2) {
+      const want = headingAt(p.idx) - Math.max(-1, Math.min(1, p.lat / hw)) * 0.4;
+      const d = Math.atan2(Math.sin(want - p.heading), Math.cos(want - p.heading));
+      p.heading += d * (Math.abs(steer) < 0.15 ? 1.8 : 0.5) * dt;
+    }
     // カーブでハンドルを切ると少し減速（安定感が高いほど減速しにくい）
     if (steer && p.speed > 15) p.speed -= Math.abs(steer) * p.speed * p.cornerDrag * (p.speed / p.maxSpeed) * dt;
   } else {
@@ -2560,7 +2644,9 @@ function updatePlayer(dt) {
   if (Math.abs(p.lat) > LIMIT) {
     const over = p.lat - Math.sign(p.lat) * LIMIT, l = lefts[p.idx];
     p.pos.x -= l.x * over; p.pos.z -= l.z * over;
-    p.lat -= over; p.speed *= 0.6;
+    p.lat -= over; p.speed *= 0.9;
+    const tH = headingAt(p.idx), dH = Math.atan2(Math.sin(tH - p.heading), Math.cos(tH - p.heading));
+    p.heading += dH * Math.min(1, dt * 5);          // 柵にあたると道の向きへ向き直る
   }
 
   // 高さ（ジャンプ台・着地・川ポチャ）
@@ -3217,6 +3303,7 @@ async function startSolo() {
   resetSolo();
 }
 function resetSolo() {
+  if (towTruck) { towTruck.g.visible = false; towTruck.rope.visible = false; }
   karts.forEach((k, i) => resetKart(k, GRID[i]));
   applyStats(player, profile ? profile.stats : DEFAULT_STATS);
   resetBonus();
@@ -3242,6 +3329,7 @@ $('pRetry').addEventListener('click', () => { $('pause').classList.add('hidden')
 $('pHelp').addEventListener('click', () => { helpReturn = 'pause'; $('pause').classList.add('hidden'); $('title').classList.remove('hidden'); showScr('scrHelp'); state = 'title'; });
 $('pTitle').addEventListener('click', toTitle);
 function toTitle() {
+  if (towTruck) { towTruck.g.visible = false; towTruck.rope.visible = false; }
   state = 'title'; mode = 'none'; curRace = null;
   playMusic('title');
   hudEl.classList.add('hidden'); $('spec').classList.add('hidden');
@@ -5005,11 +5093,19 @@ padEl.querySelectorAll('[data-act]').forEach(b => {
     else if (a === 'calib') { calibrateTilt(); toast('今の持ち方を「まっすぐ」にしました'); }
   });
 });
+// ---- おたすけハンドル（スマホ操作のときだけ効く） ----
+let steerAssist = store.get('steerAssist') != null ? store.get('steerAssist') : CONFIG.STEER_ASSIST;
+const steerAssistOn = () => steerAssist && touchOn() && !keys.ArrowLeft && !keys.ArrowRight;
+if ($('steerAssistSel')) {
+  $('steerAssistSel').classList.toggle('hidden', !IS_TOUCH);
+  $('steerAssistSel').value = steerAssist ? 'on' : 'off';
+  $('steerAssistSel').addEventListener('change', e => { steerAssist = e.target.value === 'on'; store.set('steerAssist', steerAssist); });
+}
 // ---- 傾きハンドル（横持ちでハンドルのように回す／前に倒すとアクセル） ----
 const ctrlPref = () => store.get('ctrl') || 'tilt';
 // 感度：何度回すとハンドルいっぱいか（小さいほど少し回すだけで曲がる。大きく回すと画面が縦に回ってしまうため）
 const SENS = { xlow: 40, low: 30, mid: 20, high: 13 };
-const sensPref = () => store.get('tiltSensB') || 'xlow';
+const sensPref = () => store.get('tiltSensB') || 'xlow';   // 標準は「とても低い」（以前の設定はリセット）
 const TILT_DEAD = 2.5;
 const TILT_EXPO = 1.7;   // 1より大きいほど、少しの傾きではゆるく曲がる（大きく回したときだけ鋭く曲がる）
 const tilt = { steer: 0, wheel: 0, wheel0: 0, pitch: 0, pitch0: null, last: 0, asked: false, denied: false, refAng: null, raw: {} };
@@ -5125,7 +5221,7 @@ function openTiltTest() {
   $('sensSel').value = sensPref();
   setTimeout(() => { if (tilt.last) calibrateTilt(); }, 300);
 }
-const TILT_VER = '10/06c';
+const TILT_VER = '10/07';
 function tiltEnv() {
   const ua = navigator.userAgent;
   const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
